@@ -1,0 +1,287 @@
+[
+  {
+    "url": "https://www.facebook.com/",
+    "timestamp": "2025-10-13 02:09:58",
+    "result": "suspicious",
+    "unsafe_probability": 0.3951,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10424",
+        "contribution": -0.2959852313529547,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10424 วัน)"
+      },
+      {
+        "feature": "san_count",
+        "label": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
+        "value": "11",
+        "contribution": -0.08840565485196837,
+        "explanation": "ใบรับรอง SSL ครอบคลุมหลายโดเมน (11 รายการ)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "172",
+        "contribution": -0.06705659148577732,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 172"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "16",
+        "contribution": -0.057989040854863116,
+        "explanation": "ความยาวชื่อโดเมน: 16"
+      },
+      {
+        "feature": "cert_days_left",
+        "label": "จำนวนวันก่อน SSL หมดอายุ",
+        "value": "7",
+        "contribution": -0.04804090978836037,
+        "explanation": "ใบรับรอง SSL ยังมีอายุ 7 วัน"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.facebook.com",
+      "อายุโดเมน (วัน)": 10424,
+      "SSL ใกล้หมดอายุ (วัน)": 7
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-13 02:11:51",
+    "result": "suspicious",
+    "unsafe_probability": 0.4559,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10254",
+        "contribution": -0.3272255339030328,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10254 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2225",
+        "contribution": -0.0646240270097391,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2225"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.059602259621978154,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.04704265631039286,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.018302515924052864,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10254
+    }
+  },
+  {
+    "url": "https://www.facebook.com/",
+    "timestamp": "2025-10-13 02:17:04",
+    "result": "safe",
+    "unsafe_probability": 0.1649,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10424",
+        "contribution": -0.3188594168907211,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10424 วัน)"
+      },
+      {
+        "feature": "san_count",
+        "label": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
+        "value": "11",
+        "contribution": -0.11760453591648393,
+        "explanation": "ใบรับรอง SSL ครอบคลุมหลายโดเมน (11 รายการ)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "172",
+        "contribution": -0.07579963317985687,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 172"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "16",
+        "contribution": -0.06820985254783465,
+        "explanation": "ความยาวชื่อโดเมน: 16"
+      },
+      {
+        "feature": "cert_days_left",
+        "label": "จำนวนวันก่อน SSL หมดอายุ",
+        "value": "7",
+        "contribution": -0.05723915367558214,
+        "explanation": "ใบรับรอง SSL ยังมีอายุ 7 วัน"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.facebook.com",
+      "อายุโดเมน (วัน)": 10424,
+      "SSL ใกล้หมดอายุ (วัน)": 7
+    }
+  },
+  {
+    "url": "https://www.youtube.com/",
+    "timestamp": "2025-10-13 02:17:29",
+    "result": "safe",
+    "unsafe_probability": 0.1979,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "7544",
+        "contribution": -0.21639933214785276,
+        "explanation": "โดเมนเปิดใช้งานมานาน (7544 วัน)"
+      },
+      {
+        "feature": "san_count",
+        "label": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
+        "value": "138",
+        "contribution": -0.19585950265771268,
+        "explanation": "ใบรับรอง SSL ครอบคลุมหลายโดเมน (138 รายการ)"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.740601562950723",
+        "contribution": -0.0834120467254454,
+        "explanation": "ความซับซ้อนของ URL: 3.740601562950723"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "271",
+        "contribution": -0.0802642004478188,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 271"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "15",
+        "contribution": -0.07792761801698318,
+        "explanation": "ความยาวชื่อโดเมน: 15"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.youtube.com",
+      "อายุโดเมน (วัน)": 7544
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-13 02:17:51",
+    "result": "safe",
+    "unsafe_probability": 0.2164,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10254",
+        "contribution": -0.34665872717336177,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10254 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2225",
+        "contribution": -0.1526372700731987,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2225"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07432757414350272,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661267",
+        "contribution": -0.05725694618452456,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661267"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10254
+    }
+  },
+  {
+    "url": "https://www.facebook.com/messages/e2ee/t/25538636942418401/#",
+    "timestamp": "2025-10-13 02:18:48",
+    "result": "safe",
+    "unsafe_probability": 0.1457,
+    "reasons": [
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "60",
+        "contribution": -0.21787231761746145,
+        "explanation": "ความยาวรวมของ URL: 60"
+      },
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10424",
+        "contribution": -0.1976593373211733,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10424 วัน)"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "3.5294117647058822",
+        "contribution": -0.10519399880488689,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 3.5294117647058822"
+      },
+      {
+        "feature": "san_count",
+        "label": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
+        "value": "11",
+        "contribution": -0.06493000318964336,
+        "explanation": "ใบรับรอง SSL ครอบคลุมหลายโดเมน (11 รายการ)"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "16",
+        "contribution": -0.049382030407558314,
+        "explanation": "ความยาวชื่อโดเมน: 16"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.facebook.com",
+      "อายุโดเมน (วัน)": 10424,
+      "SSL ใกล้หมดอายุ (วัน)": 7
+    }
+  }
+]

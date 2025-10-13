@@ -1,0 +1,14 @@
+flask
+flask-cors
+scikit-learn
+pandas
+numpy
+requests
+joblib
+websocket-client
+tldextract
+python-whois
+selenium
+matplotlib
+seaborn
+treeinterpreter

@@ -1,0 +1,36 @@
+{
+  "oob_score": 0.9852320675105485,
+  "accuracy@0.5": 0.9859550561797753,
+  "roc_auc": 0.9994318719818199,
+  "avg_precision": 0.999427017853006,
+  "tuned_threshold": 0.44,
+  "tuned_report": {
+    "safe": {
+      "precision": 1.0,
+      "recall": 0.9832402234636871,
+      "f1-score": 0.9915492957746479,
+      "support": 179.0
+    },
+    "unsafe": {
+      "precision": 0.9833333333333333,
+      "recall": 1.0,
+      "f1-score": 0.9915966386554622,
+      "support": 177.0
+    },
+    "accuracy": 0.9915730337078652,
+    "macro avg": {
+      "precision": 0.9916666666666667,
+      "recall": 0.9916201117318435,
+      "f1-score": 0.9915729672150551,
+      "support": 356.0
+    },
+    "weighted avg": {
+      "precision": 0.9917134831460673,
+      "recall": 0.9915730337078652,
+      "f1-score": 0.9915728342294349,
+      "support": 356.0
+    }
+  },
+  "target_recall": 0.9,
+  "threshold_scan_csv": "C:\\Users\\marut\\Downloads\\ProjectRM\\python\\plots\\threshold_scan.csv"
+}
