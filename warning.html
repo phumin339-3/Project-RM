@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>คำเตือนความปลอดภัย</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { color-scheme: light dark; }
+    html,body { height:100%; }
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:24px; }
+    .card { max-width: 720px; margin: 0 auto; border:1px solid #ddd; border-radius:16px; padding:20px; position:relative; z-index:1; }
+    h1 { margin: 0 0 8px; font-size: 20px; }
+    p  { margin: 8px 0; line-height: 1.5; }
+    .url { word-break: break-all; color:#9aa0a6; font-size: 13px; }
+    .danger { background:#fdecea; color:#c0392b; padding:8px 12px; border-radius:10px; display:inline-block; font-weight:600; }
+    .muted { color:#888; font-size:12px; }
+    .hr { height:1px; background:#333; margin:16px 0; opacity:.2; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+
+    button {
+      appearance: none; -webkit-appearance: none;
+      padding:10px 14px; border:1px solid #ddd; border-radius:10px;
+      background:#fff; cursor:pointer; font-weight:600; user-select:none;
+    }
+    button.primary { background:#c0392b; color:#fff; border-color:#c0392b; }
+    button.safe    { background:#1e824c; color:#fff; border-color:#1e824c; }
+    /* ปุ่มย้อนกลับโทนสบายตา */
+    button.back    { background:#e9f2ff; border-color:#cfe2ff; color:#0b3d91; }
+    button.back:hover { background:#dbeaff; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+
+    .split { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .tiny { font-size:12px; }
+    .badge { font-size:11px; padding:2px 8px; border-radius:999px; background:#333; color:#aaa; }
+  </style>
+</head>
+<body>
+  <div class="card" role="dialog" aria-labelledby="title">
+    <div class="danger">เว็บไซต์นี้อาจไม่ปลอดภัย</div>
+    <h1 id="title">คุณต้องการจะเข้าเว็บไซต์นี้หรือไม่?</h1>
+    <p class="url" id="targetUrl">-</p>
+    <p class="muted" id="reason">เหตุผล: -</p>
+
+    <div class="hr"></div>
+
+    <div class="row">
+      <button type="button" class="primary" id="block-domain">บล็อคทั้งโดเมน</button>
+      <button type="button" class="primary" id="block-url">บล็อคเฉพาะ URL นี้</button>
+    </div>
+
+    <div class="split">
+      <button type="button" class="back" id="go-back">ย้อนกลับ</button>
+      <button type="button" class="safe" id="proceed-once">ยืนยันเข้าเว็บไซต์</button>
+    </div>
+
+    <p class="tiny muted">คุณสามารถจัดการรายการที่บล็อคและดูประวัติได้จาก Popup ของส่วนขยาย</p>
+    <span class="badge" id="tabNote"></span>
+  </div>
+
+  <script src="warning.js"></script>
+</body>
+</html>

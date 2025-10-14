@@ -4,31 +4,62 @@
   <meta charset="UTF-8" />
   <title>Phishing Detector</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; width: 340px; padding: 12px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; width: 360px; padding: 12px; }
     h3 { margin: 0 0 8px; display:flex; align-items:center; gap:6px; }
     .controls { display:flex; gap:8px; margin:8px 0 10px; }
-    button { flex:1; padding:8px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; }
+    button { padding:8px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; }
     button:hover { background:#f7f7f7; }
-    .meta { font-size:12px; color:#666; margin-bottom:6px; }
+    .tabs { display:flex; gap:8px; margin:6px 0 10px; }
+    .tab { flex:1; text-align:center; }
+    .active { background:#eef6ff; border-color:#bcdcff; }
+    .meta { font-size:12px; color:#666; margin:6px 0; }
     .row { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid #eee; }
     .url { font-size:12px; color:#333; word-break: break-all; }
     .sub { font-size:11px; color:#777; }
     .pill { border-radius:999px; padding:2px 8px; font-size:12px; white-space:nowrap; align-self:start; }
     .good { background:#eafaf1; color:#1e824c; }
-    .bad { background:#fdecea; color:#c0392b; }
+    .bad  { background:#fdecea; color:#c0392b; }
     .empty { font-size:12px; color:#888; text-align:center; padding:14px 0; }
+    .small { font-size:11px; }
+    .linelist { font-size:12px; color:#333; word-break: break-all; }
+    .line { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed #eee; }
   </style>
 </head>
 <body>
   <h3>🔍 ตรวจสอบเว็บไซต์</h3>
 
   <div class="controls">
-    <button id="btn-check">ตรวจแท็บนี้</button>
-    <button id="btn-clear">ล้างประวัติ</button>
+    <button id="btn-check" style="flex:1">ตรวจแท็บนี้</button>
+    <button id="btn-clear" style="flex:1">ล้างประวัติ</button>
   </div>
 
-  <div class="meta" id="meta">ประวัติ: -</div>
-  <div id="list"></div>
+  <div class="tabs">
+    <button class="tab active" id="tab-logs">ประวัติการตรวจ</button>
+    <button class="tab" id="tab-blocks">บล็อค & ประวัติบล็อค</button>
+  </div>
+
+  <div id="panel-logs">
+    <div class="meta" id="meta">ประวัติ: -</div>
+    <div id="list"></div>
+  </div>
+
+  <div id="panel-blocks" style="display:none">
+    <div class="meta">รายการที่บล็อคอยู่</div>
+    <div class="linelist">
+      <div class="small">โดเมน</div>
+      <div id="block-domains"></div>
+      <div class="small" style="margin-top:6px;">URL</div>
+      <div id="block-urls"></div>
+    </div>
+
+    <div class="meta" style="margin-top:10px;">ประวัติการบล็อค</div>
+    <div id="block-history"></div>
+
+    <div class="controls">
+      <button id="btn-refresh-blocks">รีเฟรช</button>
+      <button id="btn-clear-block-history">ล้างประวัติการบล็อค</button>
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>

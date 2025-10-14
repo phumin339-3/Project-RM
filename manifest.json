@@ -1,9 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Phishing Detector",
-  "version": "1.0.0",
+  "version": "1.2.1",
 
-  "permissions": ["storage", "activeTab", "scripting", "offscreen", "tabs"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "offscreen",
+    "tabs",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "notifications"
+  ],
   "host_permissions": ["<all_urls>"],
 
   "background": { "service_worker": "background.js" },
@@ -13,6 +22,10 @@
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
 
+  "declarative_net_request": {
+    "rule_resources": []
+  },
+
   "web_accessible_resources": [
     {
       "resources": [
@@ -20,7 +33,9 @@
         "model/*",
         "offscreen.html",
         "offscreen.js",
-        "data/*.csv"
+        "data/*.csv",
+        "warning.html",
+        "warning.js"
       ],
       "matches": ["<all_urls>"]
     }
