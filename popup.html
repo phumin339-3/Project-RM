@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>Phishing Detector</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; width: 340px; padding: 12px; }
+    h3 { margin: 0 0 8px; display:flex; align-items:center; gap:6px; }
+    .controls { display:flex; gap:8px; margin:8px 0 10px; }
+    button { flex:1; padding:8px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; }
+    button:hover { background:#f7f7f7; }
+    .meta { font-size:12px; color:#666; margin-bottom:6px; }
+    .row { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid #eee; }
+    .url { font-size:12px; color:#333; word-break: break-all; }
+    .sub { font-size:11px; color:#777; }
+    .pill { border-radius:999px; padding:2px 8px; font-size:12px; white-space:nowrap; align-self:start; }
+    .good { background:#eafaf1; color:#1e824c; }
+    .bad { background:#fdecea; color:#c0392b; }
+    .empty { font-size:12px; color:#888; text-align:center; padding:14px 0; }
+  </style>
+</head>
+<body>
+  <h3>🔍 ตรวจสอบเว็บไซต์</h3>
+
+  <div class="controls">
+    <button id="btn-check">ตรวจแท็บนี้</button>
+    <button id="btn-clear">ล้างประวัติ</button>
+  </div>
+
+  <div class="meta" id="meta">ประวัติ: -</div>
+  <div id="list"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

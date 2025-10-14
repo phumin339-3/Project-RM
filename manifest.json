@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Phishing Detector",
+  "version": "1.0.0",
+
+  "permissions": ["storage", "activeTab", "scripting", "offscreen", "tabs"],
+  "host_permissions": ["<all_urls>"],
+
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html" },
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "vendor/*",
+        "model/*",
+        "offscreen.html",
+        "offscreen.js",
+        "data/*.csv"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
