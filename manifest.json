@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Phishing Detector",
-  "version": "1.2.1",
+  "version": "1.3.0",
 
   "permissions": [
     "storage",
@@ -9,6 +9,7 @@
     "scripting",
     "offscreen",
     "tabs",
+    "webNavigation",
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
     "notifications"
@@ -22,9 +23,7 @@
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
 
-  "declarative_net_request": {
-    "rule_resources": []
-  },
+  "declarative_net_request": { "rule_resources": [] },
 
   "web_accessible_resources": [
     {

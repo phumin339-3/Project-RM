@@ -1,4 +1,6 @@
-// background.js — history + allowlist + DNR block (requestDomains/regex) + interstitial + notifications + offscreen + smart_back
+// background.js — allowlist CSV + DNR block (domain/URL) + auto model check + interstitial + history
+// + notifications + offscreen handshake + SAFE BACK TARGET + SMART BACK + welcome on install
+// + USER ALLOWLIST (add/remove via popup)
 
 /***** CONFIG *****/
 const HISTORY_KEY = "check_history";
@@ -16,10 +18,33 @@ const BYPASS_MINUTES_DEFAULT = 5;
 const lastCheckedAt = new Map();       // url -> ms
 let offscreenReadyWaiter = null;
 
-/***** ALLOWLIST (CSV) *****/
+/***** MASTER SWITCH (Enable/Disable) *****/
+const ENABLED_KEY = "ext_enabled";
+let EXT_ENABLED = true;
+
+async function loadEnabledFlag() {
+  try {
+    const obj = await chrome.storage.local.get(ENABLED_KEY);
+    if (typeof obj[ENABLED_KEY] === "boolean") EXT_ENABLED = obj[ENABLED_KEY];
+  } catch {}
+  return EXT_ENABLED;
+}
+async function setEnabledFlag(v) {
+  EXT_ENABLED = !!v;
+  await chrome.storage.local.set({ [ENABLED_KEY]: EXT_ENABLED });
+  chrome.action.setBadgeText({ text: EXT_ENABLED ? "" : "OFF" });
+  chrome.action.setBadgeBackgroundColor({ color: EXT_ENABLED ? "#2ecc71" : "#9aa0a6" });
+  chrome.runtime.sendMessage({ action: "enabled_updated", value: EXT_ENABLED }).catch(()=>{});
+}
+
+/***** ALLOWLIST (CSV + USER) *****/
 const ALLOWLIST_CSV_PATH = "data/allowlist.csv";
 let ALLOWLIST_SET = null;
 let allowlistReadyPromise = null;
+
+// user-allowlist
+const ALLOWLIST_USER_KEY = "allowlist_user_set";
+let USER_ALLOWLIST_SET = null; // Set<string> ของโดเมน base (eTLD+1)
 
 function normalizeDomainToETLD1(hostname) {
   try {
@@ -31,6 +56,7 @@ function normalizeDomainToETLD1(hostname) {
     return String(hostname || "").toLowerCase().trim();
   }
 }
+
 async function loadAllowlistFromCsv() {
   if (ALLOWLIST_SET) return ALLOWLIST_SET;
   if (allowlistReadyPromise) return allowlistReadyPromise;
@@ -57,15 +83,26 @@ async function loadAllowlistFromCsv() {
       set.add(normalizeDomainToETLD1(domain));
     }
     ALLOWLIST_SET = set;
-    console.log("✅ Allowlist loaded:", ALLOWLIST_SET.size);
+    console.log("✅ Allowlist CSV loaded:", ALLOWLIST_SET.size);
     return ALLOWLIST_SET;
   })();
   return allowlistReadyPromise;
 }
-function isAllowedHostBySet(hostname) {
-  if (!hostname || !ALLOWLIST_SET) return false;
+
+async function loadUserAllowlist() {
+  if (USER_ALLOWLIST_SET) return USER_ALLOWLIST_SET;
+  const obj = await chrome.storage.local.get(ALLOWLIST_USER_KEY);
+  const arr = Array.isArray(obj[ALLOWLIST_USER_KEY]) ? obj[ALLOWLIST_USER_KEY] : [];
+  USER_ALLOWLIST_SET = new Set(arr.map(normalizeDomainToETLD1));
+  return USER_ALLOWLIST_SET;
+}
+async function saveUserAllowlist(set) {
+  await chrome.storage.local.set({ [ALLOWLIST_USER_KEY]: Array.from(set) });
+  chrome.runtime.sendMessage({ action: "allowlist_updated" }).catch(()=>{});
+}
+function isAllowedByAny(hostname) {
   const base = normalizeDomainToETLD1(hostname);
-  return ALLOWLIST_SET.has(base);
+  return (ALLOWLIST_SET && ALLOWLIST_SET.has(base)) || (USER_ALLOWLIST_SET && USER_ALLOWLIST_SET.has(base));
 }
 
 /***** OFFSCREEN HANDSHAKE (ONNX) *****/
@@ -132,7 +169,7 @@ async function saveBlocks(domainsSet, urlsSet) {
     [BLOCK_DOMAIN_KEY]: Array.from(domainsSet),
     [BLOCK_URL_KEY]: Array.from(urlsSet)
   });
-  await rebuildDnrRules();                                       // อัปเดตกฎ DNR ทุกครั้งที่มีการเปลี่ยนบล็อค
+  await rebuildDnrRules(); // refresh DNR
   chrome.runtime.sendMessage({ action: "blocks_updated" }).catch(() => {});
 }
 async function addBlockDomainFromUrl(url, who = "manual") {
@@ -204,7 +241,6 @@ function hasBypass(tabId, base) {
 const DNR_RULE_ID_START = 1000;
 const DNR_MAX_RULES = 5000;
 
-// บล็อค URL ตรงตัว → ใช้ regexFilter+regexSubstitution เพื่อส่ง URL เดิมไปหน้าเตือน (url=\0)
 function ruleForBlockedUrl(id, fullUrl) {
   return {
     id,
@@ -221,8 +257,6 @@ function ruleForBlockedUrl(id, fullUrl) {
     }
   };
 }
-
-// บล็อคโดเมน (รวมซับโดเมน) → ใช้ requestDomains + queryTransform ส่งเหตุผล/โดเมนเข้า warning.html
 function ruleForBlockedDomain(id, domain) {
   const ext = new URL(chrome.runtime.getURL("/"));
   return {
@@ -245,24 +279,20 @@ function ruleForBlockedDomain(id, domain) {
       }
     },
     condition: {
-      requestDomains: [domain],               // << สำคัญ! ครอบคลุมซับโดเมน
+      requestDomains: [domain],
       resourceTypes: ["main_frame"]
     }
   };
 }
-
 async function rebuildDnrRules() {
   const { domains, urls } = await loadBlocks();
   const rules = [];
   let nextId = DNR_RULE_ID_START;
 
-  // URL รายตัว
   for (const u of urls) {
     rules.push(ruleForBlockedUrl(nextId++, u));
     if (rules.length >= DNR_MAX_RULES) break;
   }
-
-  // โดเมน
   for (const d of domains) {
     rules.push(ruleForBlockedDomain(nextId++, d));
     if (rules.length >= DNR_MAX_RULES) break;
@@ -270,11 +300,7 @@ async function rebuildDnrRules() {
 
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const toRemove = existing.map(r => r.id);
-
-  await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: toRemove,
-    addRules: rules
-  });
+  await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: toRemove, addRules: rules });
 
   console.log("✅ DNR rules updated:", rules.length);
 }
@@ -283,9 +309,14 @@ async function rebuildDnrRules() {
 async function checkUrlSafety(url) {
   const host = safeDomain(url);
   try { await loadAllowlistFromCsv(); } catch {}
+  await loadUserAllowlist().catch(()=>{});
 
-  if (isAllowedHostBySet(host)) {
-    return { prediction: 0, unsafe_probability: 0.001, reason: "allowlist-hard" };
+  if (isAllowedByAny(host)) {
+    // ใส่ reason ให้ popup เห็นได้ชัดว่าเพราะ allowlist
+    const reason = (USER_ALLOWLIST_SET && USER_ALLOWLIST_SET.has(normalizeDomainToETLD1(host)))
+      ? "allowlist-hard:user"
+      : "allowlist-hard:csv";
+    return { prediction: 0, unsafe_probability: 0.001, reason };
   }
   try {
     await ensureOffscreen();
@@ -298,10 +329,32 @@ async function checkUrlSafety(url) {
   }
 }
 
-/***** AUTO CHECK (เร็วขึ้น: ตอน loading) *****/
+/***** เก็บประวัติ URL ของแท็บ (main_frame) เพื่อ safeBackTarget *****/
+const tabHistoryMap = new Map(); // tabId -> string[]
+const tabSafeBack = new Map();   // tabId -> string
+
+function pushTabHistory(tabId, url) {
+  if (!url) return;
+  const warnPrefix = chrome.runtime.getURL("warning.html");
+  if (url.startsWith(warnPrefix)) return; // ไม่เก็บหน้าเตือน
+  const arr = tabHistoryMap.get(tabId) || [];
+  if (arr[arr.length - 1] !== url) arr.push(url);
+  if (arr.length > 30) arr.splice(0, arr.length - 30);
+  tabHistoryMap.set(tabId, arr);
+}
+
+chrome.webNavigation.onCommitted.addListener((details) => {
+  try {
+    if (details.frameId !== 0) return; // main_frame เท่านั้น
+    if (details.url) pushTabHistory(details.tabId, details.url);
+  } catch {}
+});
+
+/***** AUTO CHECK (ตอนเริ่มโหลด) + set safeBackTarget ก่อน interstitial *****/
 if (AUTO_CHECK) {
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     try {
+      if (!EXT_ENABLED) return; // respect master switch
       if (changeInfo.status !== "loading") return;
       const url = tab?.url || "";
       if (!shouldAutoCheck(url)) return;
@@ -313,6 +366,7 @@ if (AUTO_CHECK) {
       lastCheckedAt.set(url, Date.now());
 
       const { prediction, unsafe_probability, reason } = await checkUrlSafety(url);
+
       const item = {
         url,
         domain: host,
@@ -323,10 +377,14 @@ if (AUTO_CHECK) {
       };
       await appendHistory(item);
 
-      chrome.action.setBadgeText({ text: item.prediction ? "⚠" : "", tabId });
+      chrome.action.setBadgeText({ text: item.prediction ? "⚠" : (EXT_ENABLED ? "" : "OFF"), tabId });
       chrome.action.setBadgeBackgroundColor({ color: item.prediction ? "#d9534f" : "#2ecc71", tabId });
 
       if (item.prediction === 1) {
+        const hist = tabHistoryMap.get(tabId) || [];
+        const safeBackTarget = hist.length >= 1 ? hist[hist.length - 1] : null;
+        if (safeBackTarget) tabSafeBack.set(tabId, safeBackTarget);
+
         const interstitial = chrome.runtime.getURL(
           `warning.html?url=${encodeURIComponent(url)}&tabId=${tabId}&why=model-unsafe`
         );
@@ -338,7 +396,7 @@ if (AUTO_CHECK) {
   });
 }
 
-/***** SMART BACK: ย้อนแบบเมาส์ปุ่ม 5 (ถอยจนพ้น warning/โดเมนที่บล็อค/โดเมนต้นเหตุ) *****/
+/***** SMART BACK + SAFE BACK *****/
 function isWarningUrl(url) {
   const warn = chrome.runtime.getURL("warning.html");
   return typeof url === "string" && url.startsWith(warn);
@@ -355,15 +413,9 @@ async function isUrlBlockedByUserLists(url) {
     return false;
   }
 }
-async function stillBlockedOrWarning(url, avoidBase) {
+async function stillBlockedOrWarning(url) {
   if (!url) return true;
   if (isWarningUrl(url)) return true;
-  // เลี่ยงโดเมนที่เป็นต้นเหตุ แม้จะยังไม่ถูกบล็อก
-  try {
-    const host = safeDomain(url);
-    const base = normalizeDomainToETLD1(host);
-    if (avoidBase && base === avoidBase) return true;
-  } catch {}
   if (await isUrlBlockedByUserLists(url)) return true;
   return false;
 }
@@ -386,7 +438,7 @@ async function getTabUrlStable(tabId, tries = 20, gap = 120) {
   }
   return last;
 }
-async function smartBack(tabId, maxSteps = 15, avoidBase) {
+async function smartBack(tabId, maxSteps = 15) {
   if (typeof tabId !== "number") {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -414,18 +466,17 @@ async function smartBack(tabId, maxSteps = 15, avoidBase) {
     const curUrl = await getTabUrlStable(tabId, 20, 120);
     if (!curUrl) continue;
 
-    const bad = await stillBlockedOrWarning(curUrl, avoidBase);
+    const bad = await stillBlockedOrWarning(curUrl);
     if (!bad) return { ok:true, url: curUrl, steps };
   }
 
-  // หมดทาง: ไปหน้า blank กันวนลูป
   try { await chrome.tabs.update(tabId, { url: "about:blank" }); } catch {}
   return { ok:false, error:"exhausted", steps };
 }
 
-/***** POPUP & WARNING APIs (incl. smart_back) *****/
+/***** API (popup + warning + allowlist user) *****/
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  // LOGS
+  // History
   if (msg?.action === "get_history") {
     (async () => {
       const hist = await loadHistory();
@@ -440,7 +491,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // BLOCKS
+  // Blocks
   if (msg?.action === "get_blocks") {
     (async () => {
       const { domains, urls } = await loadBlocks();
@@ -469,7 +520,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // WARNING page actions
+  // Warning page actions
   if (msg?.action === "bypass_once") {
     (async () => {
       try {
@@ -500,23 +551,35 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // SMART BACK (ย้อนหลายสเต็ป)
+  // safe back / smart back
+  if (msg?.action === "go_safe_back") {
+    (async () => {
+      let tabId = typeof msg.tabId === "number" ? msg.tabId : undefined;
+      const fallbackSteps = Number(msg.fallbackSteps || 15);
+
+      if (typeof tabId !== "number") {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        tabId = tab?.id;
+      }
+      if (typeof tabId !== "number") return sendResponse({ ok:false, error:"no-tab" });
+
+      const target = tabSafeBack.get(tabId);
+      if (target) {
+        try {
+          await chrome.tabs.update(tabId, { url: target });
+          return sendResponse({ ok:true, url: target, used: "safeBackTarget" });
+        } catch {}
+      }
+      const result = await smartBack(tabId, fallbackSteps);
+      sendResponse({ ok: result.ok, url: result.url, used: "smart_back", steps: result.steps });
+    })();
+    return true;
+  }
   if (msg?.action === "smart_back") {
     (async () => {
       const tabId = typeof msg.tabId === "number" ? msg.tabId : undefined;
       const maxSteps = Number(msg.maxSteps || 15);
-
-      // แปลง msg.avoid เป็น eTLD+1 เพื่อใช้เทียบโดเมน
-      let avoidBase = "";
-      try {
-        if (msg.avoid) {
-          const maybeDomain = String(msg.avoid).trim();
-          const host = /^[\w.-]+$/.test(maybeDomain) ? maybeDomain : safeDomain(maybeDomain);
-          avoidBase = normalizeDomainToETLD1(host);
-        }
-      } catch {}
-
-      const result = await smartBack(tabId, maxSteps, avoidBase);
+      const result = await smartBack(tabId, maxSteps);
       sendResponse(result);
     })();
     return true;
@@ -542,7 +605,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           source: reason ? `manual:${reason}` : "manual"
         };
         await appendHistory(item);
-        chrome.action.setBadgeText({ text: item.prediction ? "⚠" : "", tabId: tab.id });
+        chrome.action.setBadgeText({ text: item.prediction ? "⚠" : (EXT_ENABLED ? "" : "OFF"), tabId: tab.id });
         chrome.action.setBadgeBackgroundColor({ color: item.prediction ? "#d9534f" : "#2ecc71", tabId: tab.id });
         sendResponse({ ok: true, item });
       } catch (e) { sendResponse({ ok: false, error: String(e) }); }
@@ -550,7 +613,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // preload model (optional)
+  // Preload model (optional)
   if (msg?.action === "preload_model") {
     (async () => {
       try {
@@ -563,17 +626,101 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })();
     return true;
   }
+
+  // ======= USER ALLOWLIST APIs =======
+  if (msg?.action === "get_allowlist") {
+    (async () => {
+      await loadUserAllowlist();
+      sendResponse({ ok: true, domains: Array.from(USER_ALLOWLIST_SET || []) });
+    })();
+    return true;
+  }
+  if (msg?.action === "allow_add_domain") {
+    (async () => {
+      try {
+        const base = normalizeDomainToETLD1(msg.domain || "");
+        if (!base) return sendResponse({ ok:false, error:"invalid-domain" });
+        await loadUserAllowlist();
+        USER_ALLOWLIST_SET.add(base);
+        await saveUserAllowlist(USER_ALLOWLIST_SET);
+        sendResponse({ ok: true });
+      } catch (e) { sendResponse({ ok:false, error:String(e) }); }
+    })();
+    return true;
+  }
+  if (msg?.action === "allow_remove_domain") {
+    (async () => {
+      try {
+        const base = normalizeDomainToETLD1(msg.domain || "");
+        await loadUserAllowlist();
+        USER_ALLOWLIST_SET.delete(base);
+        await saveUserAllowlist(USER_ALLOWLIST_SET);
+        sendResponse({ ok: true });
+      } catch (e) { sendResponse({ ok:false, error:String(e) }); }
+    })();
+    return true;
+  }
+  if (msg?.action === "check_allowlisted_host") {
+    (async () => {
+      try {
+        await loadAllowlistFromCsv();
+        await loadUserAllowlist();
+        const base = normalizeDomainToETLD1(msg.domain || "");
+        const inCsv  = !!ALLOWLIST_SET?.has(base);
+        const inUser = !!USER_ALLOWLIST_SET?.has(base);
+        const allowlisted = inCsv || inUser;
+        const source = inUser ? "user" : (inCsv ? "csv" : null);
+        sendResponse({ ok: true, allowlisted, base, source });
+      } catch (e) { sendResponse({ ok:false, error:String(e) }); }
+    })();
+    return true;
+  }
+
+  // ======= ENABLE APIs =======
+  if (msg?.action === "get_enabled") {
+    (async () => {
+      await loadEnabledFlag();
+      sendResponse({ ok: true, value: EXT_ENABLED });
+    })();
+    return true;
+  }
+  if (msg?.action === "set_enabled") {
+    (async () => {
+      await setEnabledFlag(!!msg.value);
+      sendResponse({ ok: true, value: EXT_ENABLED });
+    })();
+    return true;
+  }
+});
+
+/***** WELCOME / ONBOARDING *****/
+chrome.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === "install") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+  } else if (details.reason === "update") {
+    try {
+      const self = await chrome.management.getSelf?.();
+      if (self?.installType === "development") {
+        const KEY = "dev_welcome_last";
+        const { [KEY]: last } = await chrome.storage.session.get(KEY);
+        const today = new Date().toDateString();
+        if (last !== today) {
+          await chrome.storage.session.set({ [KEY]: today });
+          chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html?from=dev") });
+        }
+      }
+    } catch {}
+  }
 });
 
 /***** INIT *****/
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.action.setBadgeText({ text: "" });
-  loadAllowlistFromCsv().catch(()=>{});
-  rebuildDnrRules().catch(()=>{});
-});
 chrome.runtime.onStartup?.addListener(() => {
+  loadEnabledFlag().then(v => setEnabledFlag(v)).catch(()=>{});
   loadAllowlistFromCsv().catch(()=>{});
+  loadUserAllowlist().catch(()=>{});
   rebuildDnrRules().catch(()=>{});
 });
+loadEnabledFlag().then(v => setEnabledFlag(v)).catch(()=>{});
 loadAllowlistFromCsv().catch(()=>{});
+loadUserAllowlist().catch(()=>{});
 rebuildDnrRules().catch(()=>{});
