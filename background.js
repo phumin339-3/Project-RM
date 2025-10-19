@@ -425,6 +425,38 @@ if (AUTO_CHECK) {
   });
 }
 
+/***** ✅ REDIRECT LOGGING: บันทึกลิงก์ต้นทางก่อน redirect *****/
+// จับเฉพาะ main_frame; ใช้สิทธิ์ webRequest (observe) ไม่บล็อค
+chrome.webRequest.onBeforeRedirect.addListener(async (details) => {
+  try {
+    if (details.frameId !== 0) return;     // เฟรมหลักเท่านั้น
+    if (!EXT_ENABLED) return;              // สวิตช์ปิดอยู่ ข้าม
+    const fromUrl = details.url;           // URL ก่อนถูก redirect
+    // const toUrl = details.redirectUrl;  // ปลายทาง — จะถูกบันทึกโดย onUpdated เดิมอยู่แล้ว
+
+    // กรองเฉพาะ http/https
+    try { if (!/^https?:$/.test(new URL(fromUrl).protocol)) return; } catch { return; }
+
+    // ป้องกันยิงซ้ำติดกัน
+    if (!shouldAutoCheck(fromUrl)) return;
+    lastCheckedAt.set(fromUrl, Date.now());
+
+    // ตรวจและบันทึก “ลิงก์ต้นทาง”
+    const { prediction, unsafe_probability, reason } = await checkUrlSafety(fromUrl);
+    const item = {
+      url: fromUrl,
+      domain: safeDomain(fromUrl),
+      prob: Number(unsafe_probability || 0),
+      prediction: Number(prediction || 0),
+      ts: nowISO(),
+      source: reason ? `redirect:from:${reason}` : "redirect:from"
+    };
+    await appendHistory(item);
+  } catch (e) {
+    console.warn("onBeforeRedirect error:", e);
+  }
+}, { urls: ["<all_urls>"], types: ["main_frame"] });
+
 /***** SMART BACK + SAFE BACK *****/
 function isWarningUrl(url) {
   const warn = chrome.runtime.getURL("warning.html");

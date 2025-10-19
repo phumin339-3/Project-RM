@@ -12,7 +12,8 @@
     "webNavigation",
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
-    "notifications"
+    "notifications",
+    "webRequest"
   ],
   "host_permissions": ["<all_urls>"],
 
