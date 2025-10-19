@@ -1,6 +1,8 @@
 // background.js — allowlist CSV + DNR block (domain/URL) + auto model check + interstitial + history
 // + notifications + offscreen handshake + SAFE BACK TARGET + SMART BACK + welcome on install
 // + USER ALLOWLIST (add/remove via popup)
+// + FEEDBACK (add/list/clear + export handled in page)
+// + MASTER ENABLE SWITCH (ON/OFF) wired to popup
 
 /***** CONFIG *****/
 const HISTORY_KEY = "check_history";
@@ -10,6 +12,9 @@ const BLOCK_DOMAIN_KEY = "block_domain_set";
 const BLOCK_URL_KEY    = "block_url_set";
 const BLOCK_HISTORY_KEY= "block_history";
 
+// NEW: feedback storage key
+const FEEDBACK_KEY = "feedback_items";
+
 const AUTO_CHECK = true;
 const MIN_RECHECK_MS = 5 * 60 * 1000;
 const VALID_SCHEMES = new Set(["http:", "https:"]);
@@ -18,23 +23,30 @@ const BYPASS_MINUTES_DEFAULT = 5;
 const lastCheckedAt = new Map();       // url -> ms
 let offscreenReadyWaiter = null;
 
-/***** MASTER SWITCH (Enable/Disable) *****/
+/***** ENABLE / DISABLE (master switch) *****/
 const ENABLED_KEY = "ext_enabled";
-let EXT_ENABLED = true;
+let EXT_ENABLED = true; // cached toggle state
 
-async function loadEnabledFlag() {
-  try {
-    const obj = await chrome.storage.local.get(ENABLED_KEY);
-    if (typeof obj[ENABLED_KEY] === "boolean") EXT_ENABLED = obj[ENABLED_KEY];
-  } catch {}
+function updateBadgeForEnabled(on) {
+  if (on) {
+    chrome.action.setBadgeText({ text: "" });
+    chrome.action.setBadgeBackgroundColor?.({ color: "#16a34a" });
+  } else {
+    chrome.action.setBadgeText({ text: "OFF" });
+    chrome.action.setBadgeBackgroundColor?.({ color: "#9aa0a6" });
+  }
+}
+async function loadEnabled() {
+  const obj = await chrome.storage.local.get(ENABLED_KEY);
+  EXT_ENABLED = obj[ENABLED_KEY] !== false; // default true
+  updateBadgeForEnabled(EXT_ENABLED);
   return EXT_ENABLED;
 }
-async function setEnabledFlag(v) {
-  EXT_ENABLED = !!v;
+async function setEnabled(on) {
+  EXT_ENABLED = !!on;
   await chrome.storage.local.set({ [ENABLED_KEY]: EXT_ENABLED });
-  chrome.action.setBadgeText({ text: EXT_ENABLED ? "" : "OFF" });
-  chrome.action.setBadgeBackgroundColor({ color: EXT_ENABLED ? "#2ecc71" : "#9aa0a6" });
-  chrome.runtime.sendMessage({ action: "enabled_updated", value: EXT_ENABLED }).catch(()=>{});
+  updateBadgeForEnabled(EXT_ENABLED);
+  chrome.runtime.sendMessage({ action: "enabled_changed", enabled: EXT_ENABLED }).catch(()=>{});
 }
 
 /***** ALLOWLIST (CSV + USER) *****/
@@ -141,7 +153,7 @@ async function ensureOffscreen() {
   await waitForOffscreenReady().catch(() => {});
 }
 
-/***** STORAGE: history + blocklists *****/
+/***** STORAGE: history + blocklists + feedback *****/
 async function loadHistory() {
   const obj = await chrome.storage.local.get(HISTORY_KEY);
   return Array.isArray(obj[HISTORY_KEY]) ? obj[HISTORY_KEY] : [];
@@ -208,6 +220,21 @@ async function appendBlockHistory(entry) {
   const arr = await getBlockHistory();
   arr.push(entry);
   await setBlockHistory(arr);
+}
+
+// NEW: feedback storage helpers
+async function loadFeedback() {
+  const obj = await chrome.storage.local.get(FEEDBACK_KEY);
+  return Array.isArray(obj[FEEDBACK_KEY]) ? obj[FEEDBACK_KEY] : [];
+}
+async function saveFeedback(arr) {
+  await chrome.storage.local.set({ [FEEDBACK_KEY]: arr });
+  chrome.runtime.sendMessage({ action: "feedback_updated" }).catch(()=>{});
+}
+async function appendFeedback(entry) {
+  const arr = await loadFeedback();
+  arr.push(entry);
+  await saveFeedback(arr);
 }
 
 /***** UTILS *****/
@@ -312,7 +339,6 @@ async function checkUrlSafety(url) {
   await loadUserAllowlist().catch(()=>{});
 
   if (isAllowedByAny(host)) {
-    // ใส่ reason ให้ popup เห็นได้ชัดว่าเพราะ allowlist
     const reason = (USER_ALLOWLIST_SET && USER_ALLOWLIST_SET.has(normalizeDomainToETLD1(host)))
       ? "allowlist-hard:user"
       : "allowlist-hard:csv";
@@ -350,12 +376,15 @@ chrome.webNavigation.onCommitted.addListener((details) => {
   } catch {}
 });
 
-/***** AUTO CHECK (ตอนเริ่มโหลด) + set safeBackTarget ก่อน interstitial *****/
+/***** AUTO CHECK *****/
 if (AUTO_CHECK) {
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     try {
-      if (!EXT_ENABLED) return; // respect master switch
       if (changeInfo.status !== "loading") return;
+
+      // ⛔ ปิดสวิตช์อยู่ก็ไม่ตรวจอะไรเลย
+      if (!EXT_ENABLED) return;
+
       const url = tab?.url || "";
       if (!shouldAutoCheck(url)) return;
 
@@ -377,7 +406,7 @@ if (AUTO_CHECK) {
       };
       await appendHistory(item);
 
-      chrome.action.setBadgeText({ text: item.prediction ? "⚠" : (EXT_ENABLED ? "" : "OFF"), tabId });
+      chrome.action.setBadgeText({ text: item.prediction ? "⚠" : "", tabId });
       chrome.action.setBadgeBackgroundColor({ color: item.prediction ? "#d9534f" : "#2ecc71", tabId });
 
       if (item.prediction === 1) {
@@ -474,7 +503,7 @@ async function smartBack(tabId, maxSteps = 15) {
   return { ok:false, error:"exhausted", steps };
 }
 
-/***** API (popup + warning + allowlist user) *****/
+/***** API (popup + warning + allowlist user + feedback + enabled) *****/
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // History
   if (msg?.action === "get_history") {
@@ -595,6 +624,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         if (!["http:", "https:"].includes(u.protocol)) {
           return sendResponse({ ok: false, error: "หน้านี้ไม่ใช่เว็บไซต์ (protocol ไม่ใช่ http/https)" });
         }
+
+        if (!EXT_ENABLED) {
+          return sendResponse({ ok:false, error:"ส่วนขยายถูกปิดการทำงาน (OFF)" });
+        }
+
         const { prediction, unsafe_probability, reason } = await checkUrlSafety(tab.url);
         const item = {
           url: tab.url,
@@ -605,7 +639,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           source: reason ? `manual:${reason}` : "manual"
         };
         await appendHistory(item);
-        chrome.action.setBadgeText({ text: item.prediction ? "⚠" : (EXT_ENABLED ? "" : "OFF"), tabId: tab.id });
+        chrome.action.setBadgeText({ text: item.prediction ? "⚠" : "", tabId: tab.id });
         chrome.action.setBadgeBackgroundColor({ color: item.prediction ? "#d9534f" : "#2ecc71", tabId: tab.id });
         sendResponse({ ok: true, item });
       } catch (e) { sendResponse({ ok: false, error: String(e) }); }
@@ -623,6 +657,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       } catch (e) {
         sendResponse({ status: "error", error: String(e) });
       }
+    })();
+    return true;
+  }
+
+  // ======= ENABLED APIs (master switch) =======
+  if (msg?.action === "get_enabled") {
+    (async () => {
+      if (typeof EXT_ENABLED !== "boolean") await loadEnabled();
+      sendResponse({ ok: true, enabled: EXT_ENABLED });
+    })();
+    return true;
+  }
+  if (msg?.action === "set_enabled") {
+    (async () => {
+      await setEnabled(!!msg.enabled);
+      sendResponse({ ok: true });
     })();
     return true;
   }
@@ -676,21 +726,41 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // ======= ENABLE APIs =======
-  if (msg?.action === "get_enabled") {
+  // ======= FEEDBACK APIs =======
+  if (msg?.action === "feedback_add") {
     (async () => {
-      await loadEnabledFlag();
-      sendResponse({ ok: true, value: EXT_ENABLED });
+      try {
+        const entry = {
+          ts: nowISO(),
+          url: msg.url || "",
+          domain: msg.domain || "",
+          model_label: msg.model_label || "",   // SAFE/SUSPECT/UNSAFE
+          user_claim: msg.user_claim || "",     // "not_phishing" | "is_phishing"
+          flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
+          note: String(msg.note || "").slice(0, 2000)
+        };
+        await appendFeedback(entry);
+        sendResponse({ ok: true });
+      } catch (e) { sendResponse({ ok:false, error:String(e) }); }
     })();
     return true;
   }
-  if (msg?.action === "set_enabled") {
+  if (msg?.action === "feedback_list") {
     (async () => {
-      await setEnabledFlag(!!msg.value);
-      sendResponse({ ok: true, value: EXT_ENABLED });
+      const items = await loadFeedback();
+      items.sort((a,b)=> (a.ts > b.ts ? -1 : 1));
+      sendResponse({ ok:true, items });
     })();
     return true;
   }
+  if (msg?.action === "feedback_clear") {
+    (async () => {
+      await saveFeedback([]);
+      sendResponse({ ok:true });
+    })();
+    return true;
+  }
+
 });
 
 /***** WELCOME / ONBOARDING *****/
@@ -715,12 +785,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 /***** INIT *****/
 chrome.runtime.onStartup?.addListener(() => {
-  loadEnabledFlag().then(v => setEnabledFlag(v)).catch(()=>{});
+  loadEnabled().catch(()=>{});                // << load switch state and set badge
   loadAllowlistFromCsv().catch(()=>{});
   loadUserAllowlist().catch(()=>{});
   rebuildDnrRules().catch(()=>{});
 });
-loadEnabledFlag().then(v => setEnabledFlag(v)).catch(()=>{});
+loadEnabled().catch(()=>{});                  // << also on extension load
 loadAllowlistFromCsv().catch(()=>{});
 loadUserAllowlist().catch(()=>{});
 rebuildDnrRules().catch(()=>{});

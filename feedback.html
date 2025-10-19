@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>ส่งฟีดแบ็ก</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#ffffff; --fg:#0f172a; --line:#e5e7eb; --muted:#6b7280;
+      --good-bg:#eafaf1; --good-fg:#1e824c;
+      --warn-bg:#fff7e6; --warn-fg:#ad6800;
+      --bad-bg:#fdecea;  --bad-fg:#c0392b;
+      --seg-on:#0b57d0; --seg-off:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    html{font-size:18px}
+    body{
+      margin:20px; background:var(--bg); color:var(--fg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; line-height:1.7;
+    }
+    .wrap{max-width:980px;margin:0 auto}
+    h1{margin:0 0 10px;font-size: clamp(22px, 3vw, 30px)}
+    .card{border:1px solid var(--line); border-radius:16px; padding:16px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .field{display:grid; grid-template-columns: 160px 1fr; gap:8px 12px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border-radius:999px; padding:4px 10px; font-weight:700; font-size:14px;
+    }
+    .pill-good{ background:var(--good-bg); color:var(--good-fg) }
+    .pill-warn{ background:var(--warn-bg); color:var(--warn-fg) }
+    .pill-bad { background:var(--bad-bg);  color:var(--bad-fg)  }
+    code, input[type="text"], textarea{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    input[type="text"]{
+      width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; background:#fafafa;
+    }
+    textarea{
+      width:100%; min-height:130px; padding:10px; border:1px solid var(--line); border-radius:10px;
+    }
+    .segbar{display:flex; gap:10px; margin:12px 0}
+    .seg{
+      border:1px solid var(--seg-off); background:#fff; color:#111; cursor:pointer;
+      border-radius:12px; padding:10px 14px; font-weight:700; font-size:14px;
+    }
+    .seg.active{ border-color:var(--seg-on); box-shadow:0 0 0 3px #0b57d020 }
+    .box{border:1px dashed var(--line); border-radius:12px; padding:12px; margin-top:8px}
+    .item{display:flex; align-items:center; gap:10px; margin:6px 0; font-size:16px}
+    .muted{color:var(--muted); font-size:0.95rem}
+    .btns{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+    button{
+      appearance:none; -webkit-appearance:none; cursor:pointer;
+      border:1px solid var(--line); background:#fff; padding:10px 14px; border-radius:12px; font-weight:700;
+    }
+    .primary{ background:#0b57d0; color:#fff; border-color:#0b57d0 }
+    .ghost{ background:#fff }
+    .danger{ background:#c0392b; color:#fff; border-color:#c0392b }
+    .hint{font-size:12px; color:var(--muted); margin-top:8px}
+    @media (max-width:640px){
+      .field{grid-template-columns: 1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ส่งฟีดแบ็ก</h1>
+    <p class="muted">ช่วยบอกเราว่าผลประเมิน “เข้าใจผิด” อย่างไร เพื่อช่วยปรับปรุงในรุ่นถัดไป</p>
+
+    <div class="card">
+      <!-- Header -->
+      <div class="field" style="margin-bottom:10px">
+        <div>สถานะที่ส่วนขยายแสดง</div>
+        <div><span id="statusPill" class="pill">-</span></div>
+
+        <div>โดเมน</div>
+        <div><input id="domain" type="text" readonly></div>
+
+        <div>URL</div>
+        <div><input id="url" type="text" readonly></div>
+      </div>
+
+      <!-- Mode switch -->
+      <div class="segbar">
+        <button id="segNot" class="seg active">จริง ๆ ไม่ใช่ฟิชชิง แต่ขึ้นว่าไม่ปลอดภัย</button>
+        <button id="segIs"  class="seg">จริง ๆ เป็นฟิชชิง แต่ขึ้นว่าปลอดภัย</button>
+      </div>
+
+      <!-- NOT PHISHING group -->
+      <div id="group-not" class="box">
+        <div class="muted" style="margin-bottom:6px">รายละเอียด (กรณี <b>ไม่ใช่ฟิชชิง</b>)</div>
+        <label class="item"><input type="checkbox" value="brand_official" /> เป็นเว็บทางการขององค์กร/แบรนด์</label>
+        <label class="item"><input type="checkbox" value="known_trust" /> ใช้งานประจำและเชื่อถือได้</label>
+        <label class="item"><input type="checkbox" value="typo_wrong" /> หลุดเลขพารามิเตอร์/พาท/ซับโดเมน</label>
+        <label class="item"><input type="checkbox" value="shortener" /> เป็นลิงก์ย่อหรือลิงก์แคมเปญการตลาด</label>
+        <label class="item"><input type="checkbox" value="other" /> อื่น ๆ</label>
+      </div>
+
+      <!-- IS PHISHING group -->
+      <div id="group-is" class="box" style="display:none">
+        <div class="muted" style="margin-bottom:6px">รายละเอียด (กรณี <b>เป็นฟิชชิงจริง</b>)</div>
+        <label class="item"><input type="checkbox" value="fake_login" /> หน้าเลียนแบบ/หลอกให้ล็อกอิน</label>
+        <label class="item"><input type="checkbox" value="payment_scam" /> หลอกโอนเงิน/กิฟต์/โอน</label>
+        <label class="item"><input type="checkbox" value="typosquat" /> ใช้โดเมน/สะกดคล้ายแบรนด์ดัง</label>
+        <label class="item"><input type="checkbox" value="suspicious_redirect" /> มีรีไดเรกต์/พาไปหน้าดักเคลม/ติดตั้ง</label>
+        <label class="item"><input type="checkbox" value="malware" /> แจกไฟล์/โปรแกรมน่าสงสัย</label>
+        <label class="item"><input type="checkbox" value="other" /> อื่น ๆ</label>
+      </div>
+
+      <div style="margin-top:12px">หมายเหตุเพิ่มเติม</div>
+      <textarea id="note" placeholder="เช่น องค์กรของเราใช้ลิงก์นี้จริง / หรือ มีฟอร์มหลอกให้กรอกข้อมูล"></textarea>
+
+      <div class="btns">
+        <button id="btnBack" class="ghost">ย้อนกลับ</button>
+        <button id="btnExport" class="primary">Export JSON</button>
+      </div>
+
+      <div class="hint">ไฟล์ที่ได้จะเป็น <code>.json</code> (เฉพาะหมวดที่คุณเลือกอยู่ตอนกด Export) — ส่งต่อให้ทีมวิจัยได้ทันที</div>
+    </div>
+  </div>
+
+  <script src="feedback.js"></script>
+</body>
+</html>

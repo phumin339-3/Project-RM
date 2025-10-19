@@ -1,4 +1,9 @@
-// popup.js — simplified explanations, no % shown, with live allowlist reason + forms wired + master switch
+// popup.js
+// — simplified explanations, live allowlist reason, forms wired
+// — status pill aligned + feedback pill same size and under status
+// — master ON/OFF switch wired to background
+
+const ENABLED_KEY = "ext_enabled"; // (not used directly here but for clarity)
 
 function sendMessage(msg) {
   return new Promise((resolve) => chrome.runtime.sendMessage(msg, resolve));
@@ -16,7 +21,6 @@ function normalizeDomainOrUrlToUrl(input, fallbackScheme = "https:") {
   }
   try {
     const u = new URL(s);
-    if (!u.hostname) return "";
     if (!/^https?:$/.test(u.protocol)) u.protocol = "https:";
     return u.toString();
   } catch { return ""; }
@@ -47,15 +51,21 @@ function classifyItem(it) {
   return { label: "SAFE", cls: "good", level: "safe" };
 }
 
-/* ---------------- EXPLAIN (human friendly, no feature dump) ---------------- */
-function isAllowReason(it) {
-  return typeof it?.source === "string" && it.source.includes("allowlist-hard");
+/* ---------------- Explain (kept) ---------------- */
+async function isAllowlistedNow(domainOrUrl) {
+  let host = "";
+  try {
+    if (/^https?:\/\//i.test(domainOrUrl)) host = new URL(domainOrUrl).hostname;
+    else host = String(domainOrUrl || "");
+  } catch { host = String(domainOrUrl || ""); }
+  if (!host) return { allowlisted:false, base:"", source:null };
+  const res = await sendMessage({ action: "check_allowlisted_host", domain: host });
+  if (res && res.ok) return { allowlisted: !!res.allowlisted, base: res.base || "", source: res.source || null };
+  return { allowlisted:false, base:"", source:null };
 }
-
 function explainDecision(it, allowInfo) {
   const domain = it?.domain || (it?.url ? (new URL(it.url).hostname) : "");
   const url = it?.url || "";
-
   if (allowInfo?.allowlisted) {
     const srcText = allowInfo.source === "user"
       ? "อยู่ใน Allowlist ที่คุณเพิ่มไว้"
@@ -69,17 +79,15 @@ function explainDecision(it, allowInfo) {
       ]
     };
   }
-
   const pred = Number(it?.prediction || 0);
   const p = Number(it?.prob || 0);
-
   if (pred === 1) {
     if (p < 0.65) {
       return {
         title: "SUSPECT (น่าสงสัย/ใกล้เส้นแบ่ง)",
         bullets: [
           "โมเดลให้คะแนนใกล้เส้นแบ่ง อาจมีความเสี่ยงแต่ยังไม่ชัดเจน",
-          "แนะนำ: ตรวจชื่อโดเมนให้แน่ใจ (สะกดถูก/ไม่มีอักษรพ้องแฝง) และเลี่ยงกรอกข้อมูลสำคัญ",
+          "แนะนำ: ตรวจชื่อโดเมนให้แน่ใจ และเลี่ยงกรอกข้อมูลสำคัญ",
           `ลิงก์ที่ตรวจ: ${url}`
         ]
       };
@@ -93,7 +101,6 @@ function explainDecision(it, allowInfo) {
       ]
     };
   }
-
   if (p >= 0.50) {
     return {
       title: "SUSPECT (น่าสงสัย/ใกล้เส้นแบ่ง)",
@@ -104,7 +111,6 @@ function explainDecision(it, allowInfo) {
       ]
     };
   }
-
   return {
     title: "SAFE (ไม่พบสัญญาณเสี่ยงเด่นชัด)",
     bullets: [
@@ -114,22 +120,6 @@ function explainDecision(it, allowInfo) {
     ]
   };
 }
-
-/* ---------------- Allowlist live check ---------------- */
-async function isAllowlistedNow(domainOrUrl) {
-  let host = "";
-  try {
-    if (/^https?:\/\//i.test(domainOrUrl)) host = new URL(domainOrUrl).hostname;
-    else host = String(domainOrUrl || "");
-  } catch { host = String(domainOrUrl || ""); }
-  if (!host) return { allowlisted:false, base:"", source:null };
-
-  const res = await sendMessage({ action: "check_allowlisted_host", domain: host });
-  if (res && res.ok) return { allowlisted: !!res.allowlisted, base: res.base || "", source: res.source || null };
-  return { allowlisted:false, base:"", source:null };
-}
-
-/* ---------------- SIMPLE MODAL ---------------- */
 async function showExplainModal(it) {
   const domainOrUrl = it?.domain || it?.url || "";
   const allowInfo = await isAllowlistedNow(domainOrUrl);
@@ -170,6 +160,16 @@ async function showExplainModal(it) {
     ul.appendChild(li);
   }
 
+  const actions = document.createElement("div");
+  actions.style.cssText = "display:flex; gap:8px; margin-top:8px;";
+  const fbBtn = document.createElement("button");
+  fbBtn.textContent = "ส่งฟีดแบ็ก";
+  fbBtn.style.cssText = "border:1px solid #ddd; background:#fff; border-radius:8px; padding:6px 8px; cursor:pointer;";
+  fbBtn.addEventListener("click", () => {
+    openFeedbackPage(it);
+  });
+  actions.appendChild(fbBtn);
+
   const note = document.createElement("div");
   note.textContent = "หมายเหตุ: ใช้โมเดล ML ช่วยตัดสินใจ อาจคลาดเคลื่อนได้ ใช้วิจารณญาณก่อนกรอกข้อมูลสำคัญ";
   note.style.cssText = "font-size:11px;color:#666;margin-top:6px;";
@@ -177,12 +177,25 @@ async function showExplainModal(it) {
   box.appendChild(hd);
   box.appendChild(title);
   box.appendChild(ul);
+  box.appendChild(actions);
   box.appendChild(note);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 }
 
-/* ---------------- LOGS PANEL (no % text) ---------------- */
+/* ---------------- open feedback page ---------------- */
+function openFeedbackPage(it) {
+  const cls = classifyItem(it);
+  const q = new URLSearchParams({
+    url: it.url || "",
+    domain: it.domain || "",
+    model_label: cls.label || ""
+  });
+  const page = chrome.runtime.getURL(`feedback.html?${q.toString()}`);
+  chrome.tabs.create({ url: page });
+}
+
+/* ---------------- LOGS PANEL ---------------- */
 function renderLogs(items) {
   const list = document.getElementById("list");
   const meta = document.getElementById("meta");
@@ -210,22 +223,27 @@ function renderLogs(items) {
     left.appendChild(sub);
 
     const cls = classifyItem(it);
+
+    // Right column: status pill (top) + feedback pill (bottom)
+    const pillWrap = document.createElement("div");
+    pillWrap.className = "pillcol";
+
     const pill = document.createElement("div");
-    pill.className = "pill " + (cls.cls === "warn" ? "" : cls.cls);
-    pill.style.border = "1px solid #ddd";
-    pill.style.background = cls.cls === "bad" ? "#fdecea"
-                      : cls.cls === "good" ? "#eafaf1"
-                      : "#fff7e6";
-    pill.style.color = cls.cls === "bad" ? "#c0392b"
-                  : cls.cls === "good" ? "#1e824c"
-                  : "#b26a00";
+    pill.className = "pill " + (cls.cls === "warn" ? "warn" : cls.cls);
     pill.textContent = cls.label;
-    pill.style.cursor = "pointer";
     pill.title = "กดเพื่อดูเหตุผลแบบย่อ";
     pill.addEventListener("click", () => { showExplainModal(it); });
 
+    const fbBtn = document.createElement("button");
+    fbBtn.textContent = "ฟีดแบ็ก";
+    fbBtn.className = "pill-fb " + (cls.cls === "bad" ? "bad" : (cls.cls === "good" ? "good" : "warn"));
+    fbBtn.addEventListener("click", () => openFeedbackPage(it));
+
+    pillWrap.appendChild(pill);
+    pillWrap.appendChild(fbBtn);
+
     row.appendChild(left);
-    row.appendChild(pill);
+    row.appendChild(pillWrap);
     list.appendChild(row);
   }
 }
@@ -234,7 +252,7 @@ async function refreshLogs() {
   renderLogs(res?.ok ? (res.items || []) : []);
 }
 
-/* ---------------- BLOCKS PANEL ---------------- */
+/* ---------------- BLOCKS PANEL (เดิม + wire ฟอร์ม) ---------------- */
 function renderBlockSets(domains, urls) {
   const dEl = document.getElementById("block-domains");
   const uEl = document.getElementById("block-urls");
@@ -300,6 +318,7 @@ function renderAllowlist(domains) {
     root.innerHTML = `<div class="empty">ยังไม่มีโดเมนใน Allowlist ของคุณ</div>`;
     return;
   }
+
   for (const d of domains) {
     const line = document.createElement("div");
     line.className = "line";
@@ -320,28 +339,30 @@ async function refreshAllowlist() {
   renderAllowlist(res?.ok ? (res.domains || []) : []);
 }
 
-/* ---------------- MASTER SWITCH (popup) ---------------- */
-async function getEnabled() {
-  const res = await sendMessage({ action: "get_enabled" });
-  return !!res?.value;
-}
-async function setEnabled(v) {
-  const res = await sendMessage({ action: "set_enabled", value: !!v });
-  return !!res?.value;
-}
-function bindEnabledSwitch() {
-  const el = document.getElementById("toggle-enabled");
-  if (!el) return;
-  getEnabled().then(v => { el.checked = !!v; }).catch(()=>{});
-  el.addEventListener("change", async () => {
-    const v = el.checked;
-    await setEnabled(v);
+/* ---------------- Master ON/OFF switch ---------------- */
+function bindMasterSwitch() {
+  const sw = document.getElementById("toggle-enabled");
+  if (!sw) return;
+
+  sendMessage({ action: "get_enabled" }).then((res) => {
+    sw.checked = !!res?.enabled;
   });
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg?.action === "enabled_updated" && typeof msg.value === "boolean") {
-      el.checked = msg.value;
+
+  sw.addEventListener("change", async () => {
+    const enabled = !!sw.checked;
+    await sendMessage({ action: "set_enabled", enabled });
+  
+    // อัปเดต badge ให้ตรงกับสถานะทันทีที่ผู้ใช้สลับ
+    if (!enabled) {
+      chrome.action.setBadgeText({ text: "OFF" });
+      chrome.action.setBadgeBackgroundColor({ color: "#9aa0a6" });
+    } else {
+      // เปิดใช้งาน: เคลียร์ badge (background จะใส่เตือนให้ถ้าตรวจพบความเสี่ยง)
+      chrome.action.setBadgeText({ text: "" });
+      chrome.action.setBadgeBackgroundColor({ color: "#16a34a" });
     }
   });
+  
 }
 
 /* ---------------- INIT ---------------- */
@@ -392,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadBlocksPanel();
   });
 
-  // ฟอร์ม Allowlist
+  // Allowlist forms
   const allowInput = document.getElementById("allow-domain-input");
   const allowBtn = document.getElementById("btn-allow-add");
   if (allowBtn && allowInput) {
@@ -408,7 +429,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ฟอร์มบล็อคโดเมน
   const blockDomainInput = document.getElementById("block-domain-input");
   const blockDomainBtn = document.getElementById("btn-block-domain-add");
   if (blockDomainBtn && blockDomainInput) {
@@ -421,7 +441,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ฟอร์มบล็อค URL
   const blockUrlInput = document.getElementById("block-url-input");
   const blockUrlBtn = document.getElementById("btn-block-url-add");
   if (blockUrlBtn && blockUrlInput) {
@@ -439,8 +458,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (msg?.action === "blocks_updated") loadBlocksPanel();
     if (msg?.action === "block_history_updated") loadBlocksPanel();
     if (msg?.action === "allowlist_updated") refreshAllowlist();
+    if (msg?.action === "feedback_updated") {/* no-op */}
   });
 
-  bindEnabledSwitch();   // สวิตช์เปิด/ปิด
+  bindMasterSwitch();
   refreshLogs();
 });

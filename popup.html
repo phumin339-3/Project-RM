@@ -1,3 +1,4 @@
+<!-- popup.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -6,42 +7,61 @@
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; width: 360px; padding: 12px; }
     h3 { margin: 0 0 8px; display:flex; align-items:center; gap:6px; }
+
+    /* Top controls (buttons + switch) */
     .controls { display:flex; gap:8px; margin:8px 0 10px; align-items:center; }
+    .controls > *{ height:36px; display:flex; align-items:center; justify-content:center; }
+
     button { padding:8px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; }
     button:hover { background:#f7f7f7; }
     .tabs { display:flex; gap:8px; margin:6px 0 10px; }
     .tab { flex:1; text-align:center; }
     .active { background:#eef6ff; border-color:#bcdcff; }
     .meta { font-size:12px; color:#666; margin:6px 0; }
-    .row { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid #eee; }
+
+    /* Row: left flexible, right fixed width so pills align perfectly */
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 96px; /* right column fixed width */
+      gap:8px;
+      padding:8px 0;
+      border-bottom:1px solid #eee;
+      align-items:start;
+    }
     .url { font-size:12px; color:#333; word-break: break-all; }
     .sub { font-size:11px; color:#777; }
-    .pill { border-radius:999px; padding:2px 8px; font-size:12px; white-space:nowrap; align-self:start; font-weight:600; cursor:pointer; border:1px solid transparent; }
-    .good { background:#eafaf1; color:#1e824c; }
-    .warn { background:#fff7e6; color:#ad6800; }
-    .bad  { background:#fdecea; color:#c0392b; }
+
+    .pill { border-radius:999px; height:28px; display:flex; align-items:center; justify-content:center;
+            padding:0 8px; font-size:12px; font-weight:600; border:1px solid transparent; }
+    .good { background:#eafaf1; color:#1e824c; border-color:#d9efe2; }
+    .warn { background:#fff7e6; color:#ad6800; border-color:#ffe1b3; }
+    .bad  { background:#fdecea; color:#c0392b; border-color:#f5c3bf; }
+
+    /* right column stacks */
+    .pillcol{ width:96px; display:flex; flex-direction:column; align-items:stretch; gap:6px; }
+    .pill-fb{
+      height:28px; font-size:11px; border-radius:999px;
+      border:1px solid #ddd; background:#fff; cursor:pointer; font-weight:700;
+    }
+    .pill-fb.good{ background:#eafaf1; color:#1e824c; border-color:#d9efe2; }
+    .pill-fb.warn{ background:#fff7e6; color:#ad6800; border-color:#ffe1b3; }
+    .pill-fb.bad{  background:#fdecea; color:#c0392b; border-color:#f5c3bf; }
+
     .empty { font-size:12px; color:#888; text-align:center; padding:14px 0; }
     .small { font-size:11px; }
     .linelist { font-size:12px; color:#333; word-break: break-all; }
     .line { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed #eee; }
 
-    /* เพิ่มสไตล์ช่องกรอก */
+    /* ฟอร์ม */
     .form-block { margin-top: 10px; border:1px dashed #e5e7eb; border-radius:8px; padding:8px; }
     .form-row { display:flex; gap:6px; margin:6px 0; }
     input[type="text"] { flex:1; padding:8px; border:1px solid #ddd; border-radius:8px; }
     .hint { font-size:11px; color:#777; margin-top:4px; }
     .section-title { font-weight:600; margin-top:8px; }
 
-    /* Modal อธิบายเหตุผล */
-    .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-      display: none; align-items: center; justify-content: center; padding: 10px;
-      z-index: 9999;
-    }
-    .modal {
-      width: 100%; max-width: 340px; background: #fff; color:#222; border-radius: 12px; border:1px solid #e5e7eb;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.15); overflow: hidden;
-    }
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; padding: 10px; z-index: 9999; }
+    .modal { width: 100%; max-width: 340px; background: #fff; color:#222; border-radius: 12px; border:1px solid #e5e7eb; box-shadow: 0 8px 30px rgba(0,0,0,0.15); overflow: hidden; }
     .modal-header { padding: 10px 12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
     .modal-title { font-weight: 700; font-size: 14px; }
     .modal-close { background:transparent; border:none; font-size:18px; line-height:1; cursor:pointer; padding:4px; }
@@ -57,22 +77,12 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 
     /* iOS-like master switch */
-    .switch-wrap { margin-left:auto; }
+    .switch-wrap { margin-left:auto; display:flex; align-items:center; }
     .ios-switch { position:relative; display:inline-block; width:92px; height:32px; user-select:none; }
     .ios-switch input { display:none; }
-    .ios-switch .track {
-      position:absolute; inset:0; background:#f1f5f9; border:1px solid #e5e7eb;
-      border-radius:999px; transition:.25s; overflow:hidden;
-    }
-    .ios-switch .knob {
-      position:absolute; top:2px; left:2px; width:28px; height:28px; border-radius:999px;
-      background:#fff; border:1px solid #e5e7eb; box-shadow:0 2px 6px rgba(0,0,0,.08);
-      transition:.25s; font-size:14px; color:#999; display:flex; align-items:center; justify-content:center;
-    }
-    .ios-switch .label {
-      position:absolute; top:0; bottom:0; display:flex; align-items:center; font-size:12px; font-weight:700;
-      padding:0 10px; color:#64748b; transition:.25s;
-    }
+    .ios-switch .track { position:absolute; inset:0; background:#f1f5f9; border:1px solid #e5e7eb; border-radius:999px; transition:.25s; overflow:hidden; }
+    .ios-switch .knob { position:absolute; top:2px; left:2px; width:28px; height:28px; border-radius:999px; background:#fff; border:1px solid #e5e7eb; box-shadow:0 2px 6px rgba(0,0,0,.08); transition:.25s; font-size:14px; color:#999; display:flex; align-items:center; justify-content:center; }
+    .ios-switch .label { position:absolute; top:0; bottom:0; display:flex; align-items:center; font-size:12px; font-weight:700; padding:0 10px; color:#64748b; transition:.25s; }
     .ios-switch .label.on  { left:8px; opacity:0; }
     .ios-switch .label.off { right:8px; opacity:1; }
     .ios-switch input:checked + .track { background:#d1fae5; border-color:#a7f3d0; }
@@ -88,7 +98,7 @@
     <button id="btn-check" style="flex:1">ตรวจแท็บนี้</button>
     <button id="btn-clear" style="flex:1">ล้างประวัติ</button>
 
-    <!-- สวิตช์เปิด/ปิดการทำงาน -->
+    <!-- สวิตช์เปิด/ปิดการทำงานอัตโนมัติของส่วนขยาย -->
     <div class="switch-wrap" title="เปิด/ปิดการทำงานอัตโนมัติของส่วนขยาย">
       <label class="ios-switch">
         <input id="toggle-enabled" type="checkbox" />
@@ -156,7 +166,7 @@
     </div>
   </div>
 
-  <!-- Modal อธิบายเหตุผล (แสดงตอนกด SAFE/SUSPECT/UNSAFE) -->
+  <!-- Modal อธิบายเหตุผล (กดที่ SAFE/SUSPECT/UNSAFE เพื่อเปิด) -->
   <div class="modal-backdrop" id="explain-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal" role="document">
       <div class="modal-header">
