@@ -3,6 +3,8 @@
 // + USER ALLOWLIST (add/remove via popup)
 // + FEEDBACK (add/list/clear + export handled in page)
 // + MASTER ENABLE SWITCH (ON/OFF) wired to popup
+// + SPA/fragment/soft-redirect auto-check + redirect-from logging
+// + BYPASS-FIX: ยังตรวจ/บันทึกระหว่าง bypass แต่ไม่เด้งหน้าเตือน
 
 /***** CONFIG *****/
 const HISTORY_KEY = "check_history";
@@ -20,7 +22,7 @@ const MIN_RECHECK_MS = 5 * 60 * 1000;
 const VALID_SCHEMES = new Set(["http:", "https:"]);
 const BYPASS_MINUTES_DEFAULT = 5;
 
-const lastCheckedAt = new Map();       // url -> ms
+const lastCheckedAt = new Map();       // url -> ms (throttle per-URL)
 let offscreenReadyWaiter = null;
 
 /***** ENABLE / DISABLE (master switch) *****/
@@ -348,7 +350,7 @@ async function checkUrlSafety(url) {
     await ensureOffscreen();
     const res = await chrome.runtime.sendMessage({ action: "check_url", url });
     if (!res) throw new Error("no response from offscreen");
-    return res; // { prediction, unsafe_probability }
+    return res; // { prediction, unsafe_probability, reason? }
   } catch (e) {
     console.warn("checkUrlSafety error:", e);
     return { prediction: 0, unsafe_probability: 0 };
@@ -357,7 +359,7 @@ async function checkUrlSafety(url) {
 
 /***** เก็บประวัติ URL ของแท็บ (main_frame) เพื่อ safeBackTarget *****/
 const tabHistoryMap = new Map(); // tabId -> string[]
-const tabSafeBack = new Map();   // tabId -> string
+const tabSafeBack = new Map();   // tabId -> url
 
 function pushTabHistory(tabId, url) {
   if (!url) return;
@@ -371,54 +373,81 @@ function pushTabHistory(tabId, url) {
 
 chrome.webNavigation.onCommitted.addListener((details) => {
   try {
-    if (details.frameId !== 0) return; // main_frame เท่านั้น
-    if (details.url) pushTabHistory(details.tabId, details.url);
+    if (details.frameId !== 0) return; 
+    if (details.url) {
+      pushTabHistory(details.tabId, details.url);
+      // ✅ ตรวจทุกครั้งที่ commit
+      autoCheckTabUrl(details.tabId, details.url);
+    }
   } catch {}
 });
 
-/***** AUTO CHECK *****/
+
+/***** ===== helper: run auto-check for a given tab+url (guarded) ===== *****/
+async function autoCheckTabUrl(tabId, url) {
+  try {
+    if (!EXT_ENABLED) return;
+    if (!url) return;
+
+    // ไม่ตรวจหน้าเตือนของเราเอง
+    const warnPrefix = chrome.runtime.getURL("warning.html");
+    if (url.startsWith(warnPrefix)) return;
+
+    // เฉพาะ http/https
+    try { if (!VALID_SCHEMES.has(new URL(url).protocol)) return; } catch { return; }
+
+    // กันยิงถี่
+    if (!shouldAutoCheck(url)) return;
+
+    const host = safeDomain(url);
+    const base = normalizeDomainToETLD1(host);
+
+    // ⛳ BYPASS-FIX: ยังตรวจ/บันทึก แต่จะไม่แสดง interstitial ถ้าอยู่ในช่วง bypass
+    const bypassed = hasBypass(tabId, base);
+
+    lastCheckedAt.set(url, Date.now());
+
+    const { prediction, unsafe_probability, reason } = await checkUrlSafety(url);
+
+    const item = {
+      url,
+      domain: host,
+      prob: Number(unsafe_probability || 0),
+      prediction: Number(prediction || 0),
+      ts: nowISO(),
+      source: reason
+        ? (bypassed ? `auto:bypass:${reason}` : `auto:${reason}`)
+        : (bypassed ? "auto:bypass" : "auto")
+    };
+    await appendHistory(item);
+
+    chrome.action.setBadgeText({ text: item.prediction ? "⚠" : "", tabId });
+    chrome.action.setBadgeBackgroundColor({ color: item.prediction ? "#d9534f" : "#2ecc71", tabId });
+
+    if (item.prediction === 1 && !bypassed) {
+      const hist = tabHistoryMap.get(tabId) || [];
+      const safeBackTarget = hist.length >= 1 ? hist[hist.length - 1] : null;
+      if (safeBackTarget) tabSafeBack.set(tabId, safeBackTarget);
+
+      const interstitial = chrome.runtime.getURL(
+        `warning.html?url=${encodeURIComponent(url)}&tabId=${tabId}&why=model-unsafe`
+      );
+      await chrome.tabs.update(tabId, { url: interstitial });
+    }
+  } catch (e) {
+    console.warn("autoCheckTabUrl error:", e);
+  }
+}
+
+/***** AUTO CHECK (page load แบบปกติ) *****/
 if (AUTO_CHECK) {
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     try {
       if (changeInfo.status !== "loading") return;
-
-      // ⛔ ปิดสวิตช์อยู่ก็ไม่ตรวจอะไรเลย
       if (!EXT_ENABLED) return;
 
       const url = tab?.url || "";
-      if (!shouldAutoCheck(url)) return;
-
-      const host = safeDomain(url);
-      const base = normalizeDomainToETLD1(host);
-      if (hasBypass(tabId, base)) return;
-
-      lastCheckedAt.set(url, Date.now());
-
-      const { prediction, unsafe_probability, reason } = await checkUrlSafety(url);
-
-      const item = {
-        url,
-        domain: host,
-        prob: Number(unsafe_probability || 0),
-        prediction: Number(prediction || 0),
-        ts: nowISO(),
-        source: reason ? `auto:${reason}` : "auto"
-      };
-      await appendHistory(item);
-
-      chrome.action.setBadgeText({ text: item.prediction ? "⚠" : "", tabId });
-      chrome.action.setBadgeBackgroundColor({ color: item.prediction ? "#d9534f" : "#2ecc71", tabId });
-
-      if (item.prediction === 1) {
-        const hist = tabHistoryMap.get(tabId) || [];
-        const safeBackTarget = hist.length >= 1 ? hist[hist.length - 1] : null;
-        if (safeBackTarget) tabSafeBack.set(tabId, safeBackTarget);
-
-        const interstitial = chrome.runtime.getURL(
-          `warning.html?url=${encodeURIComponent(url)}&tabId=${tabId}&why=model-unsafe`
-        );
-        await chrome.tabs.update(tabId, { url: interstitial });
-      }
+      autoCheckTabUrl(tabId, url);
     } catch (e) {
       console.warn("auto-check error:", e);
     }
@@ -426,22 +455,17 @@ if (AUTO_CHECK) {
 }
 
 /***** ✅ REDIRECT LOGGING: บันทึกลิงก์ต้นทางก่อน redirect *****/
-// จับเฉพาะ main_frame; ใช้สิทธิ์ webRequest (observe) ไม่บล็อค
+// ต้องมี permission: "webRequest"
 chrome.webRequest.onBeforeRedirect.addListener(async (details) => {
   try {
-    if (details.frameId !== 0) return;     // เฟรมหลักเท่านั้น
-    if (!EXT_ENABLED) return;              // สวิตช์ปิดอยู่ ข้าม
-    const fromUrl = details.url;           // URL ก่อนถูก redirect
-    // const toUrl = details.redirectUrl;  // ปลายทาง — จะถูกบันทึกโดย onUpdated เดิมอยู่แล้ว
+    if (details.frameId !== 0) return;
+    if (!EXT_ENABLED) return;
 
-    // กรองเฉพาะ http/https
+    const fromUrl = details.url;
     try { if (!/^https?:$/.test(new URL(fromUrl).protocol)) return; } catch { return; }
-
-    // ป้องกันยิงซ้ำติดกัน
-    if (!shouldAutoCheck(fromUrl)) return;
+    if (!shouldAutoCheck(fromUrl)) return; // throttle
     lastCheckedAt.set(fromUrl, Date.now());
 
-    // ตรวจและบันทึก “ลิงก์ต้นทาง”
     const { prediction, unsafe_probability, reason } = await checkUrlSafety(fromUrl);
     const item = {
       url: fromUrl,
@@ -456,6 +480,32 @@ chrome.webRequest.onBeforeRedirect.addListener(async (details) => {
     console.warn("onBeforeRedirect error:", e);
   }
 }, { urls: ["<all_urls>"], types: ["main_frame"] });
+
+/***** ✅ SPA / fragment / soft-redirect hooks *****/
+// SPA (history.pushState / replaceState)
+chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
+  try {
+    if (details.frameId !== 0) return;
+    autoCheckTabUrl(details.tabId, details.url);
+  } catch (e) { console.warn("onHistoryStateUpdated err", e); }
+}, { url: [{ schemes: ["http", "https"] }] });
+
+// #fragment เปลี่ยน
+chrome.webNavigation.onReferenceFragmentUpdated.addListener((details) => {
+  try {
+    if (details.frameId !== 0) return;
+    autoCheckTabUrl(details.tabId, details.url);
+  } catch (e) { console.warn("onReferenceFragmentUpdated err", e); }
+}, { url: [{ schemes: ["http", "https"] }] });
+
+// บางเว็บอัปเดต changeInfo.url โดยไม่เข้าสถานะ loading (soft redirect)
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  try {
+    if (typeof changeInfo?.url === "string" && changeInfo.url) {
+      autoCheckTabUrl(tabId, changeInfo.url);
+    }
+  } catch (e) { console.warn("tabs.onUpdated(url) err", e); }
+});
 
 /***** SMART BACK + SAFE BACK *****/
 function isWarningUrl(url) {
@@ -817,12 +867,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 /***** INIT *****/
 chrome.runtime.onStartup?.addListener(() => {
-  loadEnabled().catch(()=>{});                // << load switch state and set badge
+  loadEnabled().catch(()=>{});
   loadAllowlistFromCsv().catch(()=>{});
   loadUserAllowlist().catch(()=>{});
   rebuildDnrRules().catch(()=>{});
 });
-loadEnabled().catch(()=>{});                  // << also on extension load
+loadEnabled().catch(()=>{});
 loadAllowlistFromCsv().catch(()=>{});
 loadUserAllowlist().catch(()=>{});
 rebuildDnrRules().catch(()=>{});
