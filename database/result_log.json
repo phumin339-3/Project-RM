@@ -283,5 +283,1234 @@
       "อายุโดเมน (วัน)": 10424,
       "SSL ใกล้หมดอายุ (วัน)": 7
     }
+  },
+  {
+    "url": "https://atesada.shop/",
+    "timestamp": "2025-10-16 14:59:34",
+    "result": "unsafe",
+    "unsafe_probability": 0.9511,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "พบ",
+        "contribution": 0.13426952313173504,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": 0.13018369554038495,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "-1",
+        "contribution": 0.07699019037279345,
+        "explanation": "อายุโดเมนยังใหม่ (-1 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "-1",
+        "contribution": 0.04543361575699914,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: -1"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "1.6153846153846154",
+        "contribution": 0.04034118604398835,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 1.6153846153846154"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "atesada.shop",
+      "ใบรับรอง SSL": "ไม่พบ/ไม่ถูกต้อง"
+    }
+  },
+  {
+    "url": "https://atesada.shop/",
+    "timestamp": "2025-10-16 15:00:14",
+    "result": "unsafe",
+    "unsafe_probability": 0.9653,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "พบ",
+        "contribution": 0.11802247241623001,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": 0.1139896496231196,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "66",
+        "contribution": 0.06579626965749298,
+        "explanation": "อายุโดเมนยังใหม่ (66 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "0",
+        "contribution": 0.046488060805689,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 0"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "1.6153846153846154",
+        "contribution": 0.038400946413614856,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 1.6153846153846154"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "atesada.shop",
+      "อายุโดเมน (วัน)": 66,
+      "ใบรับรอง SSL": "ไม่พบ/ไม่ถูกต้อง"
+    }
+  },
+  {
+    "url": "https://atesada.shop/",
+    "timestamp": "2025-10-16 15:00:34",
+    "result": "unsafe",
+    "unsafe_probability": 0.9511,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "พบ",
+        "contribution": 0.13426952313173507,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": 0.13018369554038495,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "-1",
+        "contribution": 0.07699019037279345,
+        "explanation": "อายุโดเมนยังใหม่ (-1 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "-1",
+        "contribution": 0.04543361575699914,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: -1"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "1.6153846153846154",
+        "contribution": 0.04034118604398834,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 1.6153846153846154"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "atesada.shop",
+      "ใบรับรอง SSL": "ไม่พบ/ไม่ถูกต้อง"
+    }
+  },
+  {
+    "url": "https://www.anime-yuzu.com/anime/page/2/",
+    "timestamp": "2025-10-16 15:00:58",
+    "result": "unsafe",
+    "unsafe_probability": 0.9727,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "พบ",
+        "contribution": 0.16863124523591297,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": 0.16630243801264522,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "189",
+        "contribution": 0.10513353744853855,
+        "explanation": "อายุโดเมนยังใหม่ (189 วัน)"
+      },
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "40",
+        "contribution": 0.02957139854528435,
+        "explanation": "ความยาวรวมของ URL: 40"
+      },
+      {
+        "feature": "redirect_chain_len",
+        "label": "พฤติกรรมการเปลี่ยนเส้นทาง",
+        "value": "ผิดปกติ",
+        "contribution": 0.01735249481989952,
+        "explanation": "พบการเปลี่ยนเส้นทางที่อาจผิดปกติ (หลายครั้งหรือไปต่างโดเมน)"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.anime-yuzu.com",
+      "อายุโดเมน (วัน)": 189
+    }
+  },
+  {
+    "url": "http://reg2.rtu.ac.th/registrar/home.asp",
+    "timestamp": "2025-10-16 15:26:13",
+    "result": "safe",
+    "unsafe_probability": 0.2009,
+    "reasons": [
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "2.6666666666666665",
+        "contribution": -0.1606387373412164,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 2.6666666666666665"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "พบ",
+        "contribution": -0.15103887618128106,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): พบ"
+      },
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": -0.14706326305803247,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.08469803591462337,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "path_extension",
+        "label": "ไฟล์แนบเสี่ยง (.exe, .zip, .php ฯลฯ)",
+        "value": "1",
+        "contribution": -0.061340970677846156,
+        "explanation": "ไฟล์แนบเสี่ยง (.exe, .zip, .php ฯลฯ): 1"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "reg2.rtu.ac.th",
+      "ใช้ HTTPS": "ไม่ใช่",
+      "ใบรับรอง SSL": "ไม่พบ/ไม่ถูกต้อง"
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-16 15:36:04",
+    "result": "safe",
+    "unsafe_probability": 0.223,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10258",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10258 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2228",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2228"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.05701431736910724,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10258
+    }
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=sMkDUScJNaM&t=519s",
+    "timestamp": "2025-10-18 19:06:16",
+    "result": "safe",
+    "unsafe_probability": 0.2682,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "7550",
+        "contribution": -0.14225937902229796,
+        "explanation": "โดเมนเปิดใช้งานมานาน (7550 วัน)"
+      },
+      {
+        "feature": "san_count",
+        "label": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
+        "value": "138",
+        "contribution": -0.1400040573534489,
+        "explanation": "ใบรับรอง SSL ครอบคลุมหลายโดเมน (138 รายการ)"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "3.125",
+        "contribution": -0.07383832930420794,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 3.125"
+      },
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "50",
+        "contribution": -0.068005450184334,
+        "explanation": "ความยาวรวมของ URL: 50"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "15",
+        "contribution": -0.05041389289932081,
+        "explanation": "ความยาวชื่อโดเมน: 15"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.youtube.com",
+      "อายุโดเมน (วัน)": 7550
+    }
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=sMkDUScJNaM&t=519s",
+    "timestamp": "2025-10-18 19:06:43",
+    "result": "safe",
+    "unsafe_probability": 0.2682,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "7550",
+        "contribution": -0.142259379022298,
+        "explanation": "โดเมนเปิดใช้งานมานาน (7550 วัน)"
+      },
+      {
+        "feature": "san_count",
+        "label": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
+        "value": "138",
+        "contribution": -0.14000405735344892,
+        "explanation": "ใบรับรอง SSL ครอบคลุมหลายโดเมน (138 รายการ)"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "3.125",
+        "contribution": -0.07383832930420793,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 3.125"
+      },
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "50",
+        "contribution": -0.06800545018433403,
+        "explanation": "ความยาวรวมของ URL: 50"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "15",
+        "contribution": -0.05041389289932081,
+        "explanation": "ความยาวชื่อโดเมน: 15"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.youtube.com",
+      "อายุโดเมน (วัน)": 7550
+    }
+  },
+  {
+    "url": "https://chatgpt.com/g/g-p-68bffd790ed481918d8857157a8a627c-jeef/c/68f3e459-3cb4-8322-88c6-cdcc01d206ce",
+    "timestamp": "2025-10-18 19:08:11",
+    "result": "suspicious",
+    "unsafe_probability": 0.381,
+    "reasons": [
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "102",
+        "contribution": -0.3357208559285126,
+        "explanation": "ความยาวรวมของ URL: 102"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "8.5",
+        "contribution": -0.14697453623042417,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 8.5"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "4.530583745921539",
+        "contribution": -0.056126132321419074,
+        "explanation": "ความซับซ้อนของ URL: 4.530583745921539"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "365",
+        "contribution": -0.037591118795583696,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 365"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "11",
+        "contribution": -0.02558127787115319,
+        "explanation": "ความยาวชื่อโดเมน: 11"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "chatgpt.com",
+      "อายุโดเมน (วัน)": 1052
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-18 19:08:51",
+    "result": "safe",
+    "unsafe_probability": 0.2237,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10260",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10260 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2231",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2231"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.05701431736910724,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10260
+    }
+  },
+  {
+    "url": "https://chatgpt.com/g/g-p-68bffd790ed481918d8857157a8a627c-jeef/c/68f3e459-3cb4-8322-88c6-cdcc01d206ce",
+    "timestamp": "2025-10-18 19:11:54",
+    "result": "suspicious",
+    "unsafe_probability": 0.381,
+    "reasons": [
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "102",
+        "contribution": -0.3357208559285126,
+        "explanation": "ความยาวรวมของ URL: 102"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "8.5",
+        "contribution": -0.14697453623042417,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 8.5"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "4.530583745921539",
+        "contribution": -0.056126132321419074,
+        "explanation": "ความซับซ้อนของ URL: 4.530583745921539"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "365",
+        "contribution": -0.037591118795583696,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 365"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "11",
+        "contribution": -0.02558127787115319,
+        "explanation": "ความยาวชื่อโดเมน: 11"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "chatgpt.com",
+      "อายุโดเมน (วัน)": 1052
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-18 19:12:37",
+    "result": "safe",
+    "unsafe_probability": 0.2237,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10260",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10260 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2231",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2231"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.05701431736910724,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10260
+    }
+  },
+  {
+    "url": "https://www.surveymonkey.com/r/NCL6G9G",
+    "timestamp": "2025-10-18 19:15:19",
+    "result": "unsafe",
+    "unsafe_probability": 0.7635,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "พบ",
+        "contribution": 0.18125156919048455,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": 0.17937748210863022,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "1.8095238095238095",
+        "contribution": 0.05362177755600185,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 1.8095238095238095"
+      },
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "38",
+        "contribution": 0.048537535844102725,
+        "explanation": "ความยาวรวมของ URL: 38"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "4.438588368649811",
+        "contribution": 0.02410275425648898,
+        "explanation": "ความซับซ้อนของ URL: 4.438588368649811"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.surveymonkey.com",
+      "อายุโดเมน (วัน)": 9477
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-19 14:32:15",
+    "result": "safe",
+    "unsafe_probability": 0.2217,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10261",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10261 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2231",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2231"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.057014317369107226,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10261
+    }
+  },
+  {
+    "url": "https://www.surveymonkey.com/r/NCL6G9G",
+    "timestamp": "2025-10-19 14:44:09",
+    "result": "unsafe",
+    "unsafe_probability": 0.7635,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "พบ",
+        "contribution": 0.18125156919048455,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": 0.17937748210863025,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "url_length_ratio",
+        "label": "ความยาว URL เทียบกับความยาวโดเมน",
+        "value": "1.8095238095238095",
+        "contribution": 0.05362177755600185,
+        "explanation": "ความยาว URL เทียบกับความยาวโดเมน: 1.8095238095238095"
+      },
+      {
+        "feature": "length_url",
+        "label": "ความยาวรวมของ URL",
+        "value": "38",
+        "contribution": 0.04855205298592661,
+        "explanation": "ความยาวรวมของ URL: 38"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "4.438588368649812",
+        "contribution": 0.02410275425648898,
+        "explanation": "ความซับซ้อนของ URL: 4.438588368649812"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.surveymonkey.com",
+      "อายุโดเมน (วัน)": 9478
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-19 14:44:47",
+    "result": "safe",
+    "unsafe_probability": 0.2217,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10261",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10261 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2231",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2231"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.05701431736910724,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10261
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-29 10:14:57",
+    "result": "safe",
+    "unsafe_probability": 0.2217,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10271",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10271 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2241",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2241"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.057014317369107226,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10271
+    }
+  },
+  {
+    "url": "http://www.salthup.com",
+    "timestamp": "2025-10-29 10:16:02",
+    "result": "safe",
+    "unsafe_probability": 0.3179,
+    "reasons": [
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "พบ",
+        "contribution": -0.16242211070146367,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): พบ"
+      },
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": -0.15977672900126658,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "15",
+        "contribution": -0.10052483016736247,
+        "explanation": "ความยาวชื่อโดเมน: 15"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "161",
+        "contribution": -0.06805924122645984,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 161"
+      },
+      {
+        "feature": "typosquat_candidate",
+        "label": "ชื่อคล้ายโดเมนดัง (typosquat)",
+        "value": "ไม่พบ",
+        "contribution": -0.040350228570951135,
+        "explanation": "ชื่อคล้ายโดเมนดัง (typosquat): ไม่พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.salthup.com",
+      "อายุโดเมน (วัน)": 161,
+      "ใช้ HTTPS": "ไม่ใช่",
+      "ใบรับรอง SSL": "ไม่พบ/ไม่ถูกต้อง"
+    }
+  },
+  {
+    "url": "http://www.salthub.com",
+    "timestamp": "2025-10-29 10:26:08",
+    "result": "safe",
+    "unsafe_probability": 0.1109,
+    "reasons": [
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": -0.1514379728874046,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "พบ",
+        "contribution": -0.1465385770179553,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): พบ"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "15",
+        "contribution": -0.06651611204678243,
+        "explanation": "ความยาวชื่อโดเมน: 15"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "293",
+        "contribution": -0.0622169726610811,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 293"
+      },
+      {
+        "feature": "redirect_chain_len",
+        "label": "พฤติกรรมการเปลี่ยนเส้นทาง",
+        "value": "ปกติ",
+        "contribution": -0.05160498525192587,
+        "explanation": "ไม่พบการเปลี่ยนเส้นทางผิดปกติ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.salthub.com",
+      "อายุโดเมน (วัน)": 5215,
+      "ใช้ HTTPS": "ไม่ใช่",
+      "จำนวนครั้งที่มีการ redirect": 1
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-29 10:30:15",
+    "result": "safe",
+    "unsafe_probability": 0.2217,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10271",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10271 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2241",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2241"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.057014317369107226,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10271
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-10-29 14:54:36",
+    "result": "safe",
+    "unsafe_probability": 0.2217,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10271",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10271 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2241",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2241"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.057014317369107226,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.020980084283844964,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10271
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-11-04 08:52:37",
+    "result": "safe",
+    "unsafe_probability": 0.2221,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10277",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10277 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2247",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2247"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07444663094287013,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661267",
+        "contribution": -0.05721871988483042,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661267"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.02114582037792776,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10277
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-11-06 14:47:09",
+    "result": "safe",
+    "unsafe_probability": 0.223,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10279",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10279 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2249",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2249"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.057014317369107226,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10279
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-11-06 14:47:38",
+    "result": "safe",
+    "unsafe_probability": 0.223,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10279",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10279 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2249",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2249"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.05701431736910724,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10279
+    }
+  },
+  {
+    "url": "http://sadasdsa",
+    "timestamp": "2025-11-06 15:29:41",
+    "result": "suspicious",
+    "unsafe_probability": 0.3853,
+    "reasons": [
+      {
+        "feature": "is_http",
+        "label": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
+        "value": "พบ",
+        "contribution": -0.17129326599911993,
+        "explanation": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส): พบ"
+      },
+      {
+        "feature": "uses_https",
+        "label": "ใช้ HTTPS (เข้ารหัส)",
+        "value": "ไม่พบ",
+        "contribution": -0.17030701027042522,
+        "explanation": "ใช้ HTTPS (เข้ารหัส): ไม่พบ"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "8",
+        "contribution": -0.05946752672320401,
+        "explanation": "ความยาวชื่อโดเมน: 8"
+      },
+      {
+        "feature": "typosquat_candidate",
+        "label": "ชื่อคล้ายโดเมนดัง (typosquat)",
+        "value": "ไม่พบ",
+        "contribution": -0.036096556698519446,
+        "explanation": "ชื่อคล้ายโดเมนดัง (typosquat): ไม่พบ"
+      },
+      {
+        "feature": "domain_age_lt_90d",
+        "label": "อายุโดเมนน้อยกว่า 90 วัน",
+        "value": "ไม่พบ",
+        "contribution": -0.035839635828901394,
+        "explanation": "อายุโดเมนน้อยกว่า 90 วัน: ไม่พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "sadasdsa",
+      "ใช้ HTTPS": "ไม่ใช่",
+      "ใบรับรอง SSL": "ไม่พบ/ไม่ถูกต้อง"
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-11-06 15:42:31",
+    "result": "safe",
+    "unsafe_probability": 0.223,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10279",
+        "contribution": -0.34738981101794164,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10279 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2250",
+        "contribution": -0.1525954279256287,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2250"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07434632230089483,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.6424896731661263",
+        "contribution": -0.05701431736910724,
+        "explanation": "ความซับซ้อนของ URL: 3.6424896731661263"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021203309520561826,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10279
+    }
   }
 ]

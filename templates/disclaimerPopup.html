@@ -7,240 +7,504 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
+    /* ========= THEME: Light default ========= */
+    :root{
+      /* base */
+      --bg: #f5f7fb;
+      --bg-grad: radial-gradient(900px 520px at 50% -120px, #ffffff 0%, #f5f7fb 70%);
+      --ink: #0f172a;          /* main text */
+      --muted: #475569;        /* secondary text */
+      --line: rgba(15,23,42,.12);
+      --card: #ffffff;
+      --glass: rgba(255,255,255,.9);
+      --glass-2: rgba(255,255,255,1);
+      --ring: rgba(43,107,255,.22);
+      --accent: #2b6bff;
+
+      --radius: 14px;
+      --shadow: 0 16px 48px rgba(20,24,40,.08);
+
+      --ok: #16a34a;
+      --warn: #eab308;
+      --danger: #ef4444;
     }
+
+    /* ========= DARK THEME OVERRIDES ========= */
+    .theme-dark{
+      --bg: #0e1117;
+      --bg-grad: radial-gradient(1000px 600px at 50% -100px, #1a2236 0%, #0e1117 70%);
+      --ink: #e9f0ff;
+      --muted: #9fb3d2;
+      --line: rgba(255,255,255,.12);
+      --card: rgba(0,0,0,.6);
+      --glass: rgba(0,0,0,.9);
+      --glass-2: rgba(0,0,0,.9);
+      --ring: rgba(0,186,255,.35);
+      --accent:#2b6bff;
+
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    html, body{
+      height: 100%;
+      background: var(--bg);
+      background-image: var(--bg-grad);
+      color: var(--ink);
+      transition: background .35s ease, color .35s ease;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* ===== Top-right Night Mode slide switch ===== */
+    .mode-toggle{
+      position: fixed; right: 18px; top: 18px; z-index: 2000;
+      display:flex; align-items:center; gap:10px; user-select:none;
+      font-weight:600; color:var(--muted);
+      background: linear-gradient(180deg, var(--glass), var(--glass-2));
+      border-radius: 999px; padding:10px 14px; box-shadow: var(--shadow);
+      border:1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .toggle{
+      width:56px; height:30px; border-radius:999px; position:relative; cursor:pointer;
+      background: #e5e7eb; transition: background .25s ease, box-shadow .25s ease;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,.08);
+    }
+    .toggle::after{
+      content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:999px;
+      background:#ffffff; box-shadow: 0 4px 10px rgba(0,0,0,.15);
+      transition: transform .25s ease;
+    }
+    .toggle.active{ background:#3457ff33; box-shadow: inset 0 2px 10px rgba(43,107,255,.25); }
+    .toggle.active::after{ transform: translateX(26px); }
+    .mode-toggle .label{ min-width:84px; text-align:right; }
+
+    /* ===== Popup Card ===== */
     .popup {
-      width: 480px;
+      width: 560px;
       max-width: 92vw;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.9);
-      border-radius: 12px;
-      margin: 50px auto;
-      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+      padding: 22px 20px;
+      background: var(--card);
+      border-radius: var(--radius);
+      margin: 72px auto;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
     }
-    .popup h3 { margin-bottom: 16px; }
+    .popup h3 { margin-bottom: 10px; font-weight:800; }
+
     .section-title {
       margin: 14px 0 8px;
-      font-weight: 700;
-      color: #a9d7ff;
+      font-weight: 800;
+      color: #2563eb;
     }
+    .theme-dark .section-title{ color: #a9d7ff; }
+
+    .form-label { color: var(--muted); font-weight: 600; }
     .form-control {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background-color: #ffffff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
     }
+    .form-control::placeholder{ color:#94a3b8; }
+    .form-control:focus{
+      border-color: transparent;
+      box-shadow: 0 0 0 4px var(--ring);
+      background:#fff;
+    }
+    .theme-dark .form-control{
+      background-color: rgba(255,255,255,.08);
+      color: #e9f0ff;
+      border: 1px solid rgba(255,255,255,.18);
+    }
+    .theme-dark .form-control:focus{
+      box-shadow: 0 0 0 4px var(--ring), 0 0 18px rgba(0,209,255,.25);
+      background: rgba(255,255,255,.1);
+    }
+
     .form-check-input {
       cursor: pointer;
-      border-color: rgba(255,255,255,.35);
+      border-color: var(--line);
+      background-color: #ffffff;
+    }
+    .form-check-input:checked{
+      background-color: #2563eb; border-color:#2563eb;
+    }
+    .theme-dark .form-check-input{
       background-color: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.35);
     }
-    .form-check-label { cursor: pointer; }
-    .btn-primary { background-color: #007bff; border: none; }
-    .btn-primary:hover { background-color: #0056b3; }
+
+    .btn-primary {
+      background-color: #2563eb; border: none; border-radius:10px; padding:10px 16px; font-weight:700;
+      box-shadow: 0 8px 24px rgba(37,99,235,.25);
+    }
+    .btn-primary:hover { background-color: #1d4ed8; }
+
     .close-btn {
-      background-color: #FF4D4D; color: white; border: none;
-      border-radius: 8px; padding: 10px 20px; cursor: pointer;
+      background-color: var(--danger); color: white; border: none;
+      border-radius: 10px; padding: 10px 20px; font-weight:700;
+      box-shadow: 0 8px 24px rgba(239,68,68,.25);
     }
-    .close-btn:hover { background-color: #FF1A1A; }
-    .hint {
-      font-size: .9rem; color: #cfe3ff; opacity: .92; margin-top: 4px;
-    }
+    .close-btn:hover { background-color: #dc2626; }
+
+    .hint { font-size: .9rem; color: var(--muted); opacity: .92; margin-top: 4px; }
+
     .url-pill{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      padding: 6px 10px; border-radius: 10px;
-      font-size: .9rem; color: #e9f0ff;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      padding: 8px 12px; border-radius: 10px;
+      font-size: .95rem; color: var(--ink);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .theme-dark .url-pill{
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #e9f0ff;
+    }
+
+    .case-box{
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .theme-dark .case-box{
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .case-header{
+      font-weight: 800; margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .dim { opacity: .5; pointer-events: none; }
+
+    @media (max-width: 576px){
+      .popup{ margin: 84px 12px 32px; }
+      .mode-toggle{ right:12px; top:12px; }
     }
   </style>
 </head>
 <body>
+  <!-- Night Mode slide switch (top-right) -->
+  <div class="mode-toggle">
+    <span class="label">โหมดกลางคืน</span>
+    <div id="themeToggle" class="toggle" role="switch" aria-checked="false" tabindex="0"></div>
+  </div>
 
-<div class="popup">
-  <h3>Disclaimer Confirmation</h3>
-  <form id="disclaimerForm">
-    <input type="hidden" id="url" name="url" value="" />
+  <div class="popup">
+    <h3>Disclaimer Confirmation</h3>
+    <form id="disclaimerForm">
+      <input type="hidden" id="url" name="url" value="" />
 
-    <!-- URL แสดงอ่านอย่างเดียว -->
-    <div class="mb-3">
-      <label class="form-label">URL</label>
-      <div id="displayUrl" class="url-pill"></div>
-    </div>
-
-    <!-- ข้อมูลผู้ใช้ -->
-    <div class="row">
-      <div class="col-12 col-md-6 mb-3">
-        <label for="userName" class="form-label">ชื่อผู้ใช้</label>
-        <input type="text" id="userName" class="form-control" required>
+      <!-- URL แสดงอ่านอย่างเดียว -->
+      <div class="mb-3">
+        <label class="form-label">URL</label>
+        <div id="displayUrl" class="url-pill"></div>
       </div>
-      <div class="col-12 col-md-6 mb-3">
-        <label for="userEmail" class="form-label">อีเมลผู้ใช้</label>
-        <input type="email" id="userEmail" class="form-control" required>
+
+      <!-- ข้อมูลผู้ใช้ -->
+      <div class="row">
+        <div class="col-12 col-md-6 mb-3">
+          <label for="userName" class="form-label">ชื่อผู้ใช้</label>
+          <input type="text" id="userName" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-6 mb-3">
+          <label for="userEmail" class="form-label">อีเมลผู้ใช้</label>
+          <input type="email" id="userEmail" class="form-control" required>
+        </div>
       </div>
-    </div>
 
-    <!-- เหตุผลแบบติ๊ก (เน้นเคส false) -->
-    <div class="section-title">สาเหตุที่คิดว่าโมเดลประเมิน “ผิด” (เลือกได้หลายข้อ)</div>
+      <!-- เลือกกรณี -->
+      <div class="section-title">เลือกกรณีที่เกิดขึ้น</div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="radio" name="errType" id="type_fp" value="fp" required>
+        <label class="form-check-label" for="type_fp">✔️ แจ้งเตือนผิด — เว็บปลอดภัย แต่ระบบบอกว่า “เสี่ยง/ไม่ปลอดภัย”</label>
+      </div>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="radio" name="errType" id="type_fn" value="fn" required>
+        <label class="form-check-label" for="type_fn">❗ พลาดเตือน — เว็บ “เสี่ยง/ไม่ปลอดภัย” แต่ระบบบอกว่าปลอดภัย</label>
+      </div>
 
-    <!-- กลุ่ม: ลักษณะ URL -->
-    <div class="mb-2 fw-semibold">กลุ่ม: ลักษณะ URL</div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="ลิงก์โฆษณา/แคมเปญ ทำให้ยาว แต่จริง ๆ มาจากที่เชื่อถือได้" id="r_url_utm">
-      <label class="form-check-label" for="r_url_utm">🔗 ลิงก์โฆษณา/แคมเปญ ทำให้ยาว แต่จริง ๆ มาจากที่เชื่อถือได้</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="ใช้ลิงก์สั้น (bit.ly ฯลฯ) แต่ปลายทางปลอดภัย" id="r_url_short">
-      <label class="form-check-label" for="r_url_short">🔗 ใช้ลิงก์สั้น (bit.ly ฯลฯ) แต่ปลายทางปลอดภัย</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="ชื่อโดเมนมีตัวเลข/ขีดกลาง เพราะเป็นทางการขององค์กร" id="r_url_dash">
-      <label class="form-check-label" for="r_url_dash">🔗 ชื่อโดเมนมีตัวเลข/ขีดกลาง เพราะเป็นทางการขององค์กร</label>
-    </div>
+      <!-- เหตุผล (แยกตามกรณี) -->
+      <div class="section-title">เลือกเหตุผล (ติ๊กได้หลายข้อ)</div>
 
-    <!-- กลุ่ม: ตัวตนเว็บไซต์/โดเมน -->
-    <div class="mt-3 mb-2 fw-semibold">กลุ่ม: ตัวตนเว็บไซต์/โดเมน</div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="เป็นโดเมนย่อยขององค์กรที่เชื่อถือได้" id="r_org_sub">
-      <label class="form-check-label" for="r_org_sub">🏢 เป็นโดเมนย่อยขององค์กรที่เชื่อถือได้</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="โดเมนเพิ่งเปิดใหม่ แต่เป็นของจริง" id="r_new_legit">
-      <label class="form-check-label" for="r_new_legit">🆕 โดเมนเพิ่งเปิดใหม่ แต่เป็นของจริง</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="เป็นเว็บทดสอบ/สเตจขององค์กร" id="r_staging">
-      <label class="form-check-label" for="r_staging">🧪 เป็นเว็บทดสอบ/สเตจขององค์กร</label>
-    </div>
+      <!-- FP Section -->
+      <div id="fpSection" class="case-box">
+        <div class="case-header">✔️ แจ้งเตือนผิด (เว็บปลอดภัย แต่ระบบบอกว่าเสี่ยง)</div>
 
-    <!-- กลุ่ม: พฤติกรรมหน้าเว็บ -->
-    <div class="mt-3 mb-2 fw-semibold">กลุ่ม: พฤติกรรมหน้าเว็บ</div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="มีการเปลี่ยนเส้นทางหลายครั้งเพราะระบบล็อกอิน (SSO/CDN)" id="r_redirect_sso">
-      <label class="form-check-label" for="r_redirect_sso">🔄 มีการเปลี่ยนเส้นทางหลายครั้งเพราะระบบล็อกอิน (SSO/CDN)</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="เนื้อหาอาจไม่ตรงโดเมนเพราะใช้ proxy/CDN" id="r_proxy_cdn">
-      <label class="form-check-label" for="r_proxy_cdn">🌐 เนื้อหาอาจไม่ตรงโดเมนเพราะใช้ proxy/CDN</label>
-    </div>
+        <div class="fw-semibold mt-1 mb-1">ลักษณะ URL</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_url_utm"
+                 value="ลิงก์โฆษณาเลยยาว แต่เว็บปลายทางเชื่อถือได้">
+          <label class="form-check-label" for="fp_url_utm">🔗 ลิงก์โฆษณาเลยยาว แต่เว็บปลายทางเชื่อถือได้</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_url_short"
+                 value="เป็นลิงก์สั้น แต่ปลายทางปลอดภัย">
+          <label class="form-check-label" for="fp_url_short">🔗 เป็นลิงก์สั้น (เช่น bit.ly) แต่ปลายทางปลอดภัย</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_url_dashnum"
+                 value="โดเมนมีตัวเลข/ขีดกลาง แต่เป็นขององค์กรจริง">
+          <label class="form-check-label" for="fp_url_dashnum">🔗 โดเมนมีตัวเลข/ขีดกลาง แต่เป็นขององค์กรจริง</label>
+        </div>
 
-    <!-- กลุ่ม: ความปลอดภัย/ใบรับรอง -->
-    <div class="mt-3 mb-2 fw-semibold">กลุ่ม: ความปลอดภัย/ใบรับรอง</div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="ใช้ HTTPS แต่เป็นใบรับรองแบบรวม (wildcard/SAN) เลยชื่อไม่ตรงเป๊ะ" id="r_ssl_wildcard">
-      <label class="form-check-label" for="r_ssl_wildcard">✅ ใช้ HTTPS แต่เป็นใบรับรองแบบรวม (wildcard/SAN) เลยชื่อไม่ตรงเป๊ะ</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="ไม่มี HTTPS เพราะเป็นระบบเก่าภายใน/ไฟล์ที่ไม่อันตราย" id="r_no_https_legacy">
-      <label class="form-check-label" for="r_no_https_legacy">⚠️ ไม่มี HTTPS เพราะเป็นระบบเก่าภายใน/ไฟล์ที่ไม่อันตราย</label>
-    </div>
+        <div class="fw-semibold mt-2 mb-1">ตัวตนเว็บไซต์/โดเมน</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_org_sub"
+                 value="เป็นซับโดเมนขององค์กรจริง">
+          <label class="form-check-label" for="fp_org_sub">🏢 เป็นซับโดเมนขององค์กรจริง</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_new_legit"
+                 value="โดเมนเพิ่งจด แต่เป็นของจริง">
+          <label class="form-check-label" for="fp_new_legit">🆕 โดเมนเพิ่งจด แต่เป็นของจริง</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_staging"
+                 value="เป็นเว็บทดสอบ/สเตจขององค์กร">
+          <label class="form-check-label" for="fp_staging">🧪 เป็นเว็บทดสอบ/สเตจขององค์กร</label>
+        </div>
 
-    <!-- กลุ่ม: ไฟล์/ดาวน์โหลด -->
-    <div class="mt-3 mb-2 fw-semibold">กลุ่ม: ไฟล์/ดาวน์โหลด</div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="มีไฟล์แนบ (.pdf/.zip) แต่เป็นไฟล์ทางการ/ปลอดภัย" id="r_file_ok">
-      <label class="form-check-label" for="r_file_ok">📂 มีไฟล์แนบ (.pdf/.zip) แต่เป็นไฟล์ทางการ/ปลอดภัย</label>
-    </div>
+        <div class="fw-semibold mt-2 mb-1">พฤติกรรมหน้าเว็บ</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_redirect_sso"
+                 value="เด้งหลายครั้งเพราะต้องล็อกอิน (SSO/CDN)">
+          <label class="form-check-label" for="fp_redirect_sso">🔄 เด้งหลายครั้งเพราะต้องล็อกอิน (SSO/CDN)</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_proxy_cdn"
+                 value="ใช้ Proxy/CDN เลยเนื้อหามาจากโดเมนอื่น">
+          <label class="form-check-label" for="fp_proxy_cdn">🌐 ใช้ Proxy/CDN เลยเนื้อหามาจากโดเมนอื่น</label>
+        </div>
 
-    <!-- กลุ่ม: อื่น ๆ -->
-    <div class="mt-3 mb-2 fw-semibold">กลุ่ม: อื่น ๆ</div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="False Positive: เว็บปลอดภัยแต่ถูกแจ้งว่าเสี่ยง" id="r_fp">
-      <label class="form-check-label" for="r_fp">✔️ False Positive: เว็บปลอดภัยแต่ถูกแจ้งว่าเสี่ยง</label>
-    </div>
-    <div class="form-check mb-1">
-      <input class="form-check-input" type="checkbox"
-             value="False Negative: เว็บเสี่ยงแต่ระบบบอกว่าปลอดภัย" id="r_fn">
-      <label class="form-check-label" for="r_fn">✔️ False Negative: เว็บเสี่ยงแต่ระบบบอกว่าปลอดภัย</label>
-    </div>
+        <div class="fw-semibold mt-2 mb-1">ความปลอดภัย/ใบรับรอง</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_ssl_wildcard"
+                 value="มี HTTPS แต่เป็นใบรับรองรวม (wildcard/SAN) ชื่อไม่ตรงทั้งหมด">
+          <label class="form-check-label" for="fp_ssl_wildcard">✅ มี HTTPS แต่เป็นใบรับรองรวม (wildcard/SAN) ชื่อไม่ตรงทั้งหมด</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_no_https_legacy"
+                 value="ไม่มี HTTPS เพราะเป็นระบบเก่าหรือเป็นไฟล์ที่ไม่เสี่ยง">
+          <label class="form-check-label" for="fp_no_https_legacy">⚠️ ไม่มี HTTPS เพราะเป็นระบบเก่าหรือเป็นไฟล์ที่ไม่เสี่ยง</label>
+        </div>
 
-    <!-- ข้อความเพิ่มเติม -->
-    <div class="mt-3 mb-2 fw-semibold">อธิบายเพิ่มเติม (ถ้ามี)</div>
-    <textarea id="extraNote" class="form-control" rows="3"
-              placeholder="เช่น เว็บนี้เป็นลิงก์แคมเปญของบริษัท / ผ่าน SSO ก่อนถึงหน้าเว็บจริง ฯลฯ"></textarea>
-    <div class="hint">* ถ้าเลือกติ๊กอย่างน้อย 1 ข้อจะช่วยให้ทีมปรับปรุงโมเดลได้แม่นยำขึ้น</div>
+        <div class="fw-semibold mt-2 mb-1">ไฟล์/ดาวน์โหลด</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fp_file_ok"
+                 value="มีไฟล์แนบ แต่เป็นไฟล์ทางการ/ปลอดภัย">
+          <label class="form-check-label" for="fp_file_ok">📂 มีไฟล์แนบ แต่เป็นไฟล์ทางการ/ปลอดภัย</label>
+        </div>
+      </div>
 
-    <div class="d-flex justify-content-between mt-3">
-      <button type="submit" class="btn btn-primary">ยืนยัน</button>
-      <button type="button" class="close-btn" onclick="closePopup()">ปิด</button>
-    </div>
-  </form>
-</div>
+      <!-- FN Section -->
+      <div id="fnSection" class="case-box">
+        <div class="case-header">❗ พลาดเตือน (เว็บเสี่ยง/ไม่ปลอดภัย แต่ระบบบอกว่าปลอดภัย)</div>
 
-<script>
-  // รับ URL ที่ส่งมาจากหน้า index
-  const urlParams = new URLSearchParams(window.location.search);
-  const url = urlParams.get('url') || '';
-  document.getElementById("url").value = url;
-  document.getElementById("displayUrl").textContent = url || '-';
+        <div class="fw-semibold mt-1 mb-1">ลักษณะ URL/โดเมน</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_typosquat"
+                 value="ชื่อโดเมนเลียนแบบ/คล้ายแบรนด์ (typosquat)">
+          <label class="form-check-label" for="fn_typosquat">🚩 โดเมนเลียนแบบ/คล้ายแบรนด์ (ตัวสะกดเพี้ยน)</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_http"
+                 value="ใช้ HTTP ไม่ใช่ HTTPS">
+          <label class="form-check-label" for="fn_http">🔓 ใช้ HTTP ไม่ใช่ HTTPS</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_many_subdomains"
+                 value="มีซับโดเมนหลายชั้นและยาวผิดปกติ">
+          <label class="form-check-label" for="fn_many_subdomains">🧩 ซับโดเมนหลายชั้น/ยาวผิดปกติ</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_tld_in_path_sub"
+                 value="มี .com/.net โผล่ในซับโดเมนหรือใน path">
+          <label class="form-check-label" for="fn_tld_in_path_sub">🧷 มี “.com/.net” โผล่ในซับโดเมนหรือใน path</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_many_params"
+                 value="พารามิเตอร์ใน URL เยอะ/มั่วผิดปกติ">
+          <label class="form-check-label" for="fn_many_params">🧮 พารามิเตอร์เยอะ/มั่วผิดปกติ</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_at_symbol"
+                 value="มีสัญลักษณ์ @ ใน URL">
+          <label class="form-check-label" for="fn_at_symbol">@ มีสัญลักษณ์ @ ใน URL</label>
+        </div>
 
-  function closePopup() {
-    window.location.href = '/';
-  }
+        <div class="fw-semibold mt-2 mb-1">พฤติกรรม/เนื้อหา</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_fake_login"
+                 value="เด้งไปหน้าล็อกอินปลอม/คล้ายของจริง">
+          <label class="form-check-label" for="fn_fake_login">🎭 เด้งไปหน้าล็อกอินปลอม/คล้ายของจริง</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_asks_pw"
+                 value="หลอกขอรหัสผ่าน/ข้อมูลส่วนตัว/บัตร">
+          <label class="form-check-label" for="fn_asks_pw">🔑 หลอกขอรหัสผ่าน/ข้อมูลส่วนตัว/บัตร</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_shortener_hide"
+                 value="ใช้ลิงก์สั้นเพื่อซ่อนปลายทางจริง">
+          <label class="form-check-label" for="fn_shortener_hide">🕳️ ใช้ลิงก์สั้นเพื่อ “ซ่อน” ปลายทางจริง</label>
+        </div>
 
-  // รวมค่าจาก checkbox ทั้งหมด
-  function collectReasons() {
-    const boxes = document.querySelectorAll('.form-check-input[type="checkbox"]');
-    const selected = [];
-    boxes.forEach(b => { if (b.checked) selected.push(b.value); });
-    return selected;
-  }
+        <div class="fw-semibold mt-2 mb-1">ความปลอดภัย/ไฟล์</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_ssl_bad"
+                 value="ใบรับรองไม่ตรงชื่อ/หมดอายุ/เชื่อถือไม่ได้">
+          <label class="form-check-label" for="fn_ssl_bad">⚠️ ใบรับรองไม่ตรงชื่อ/หมดอายุ</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_file_exec"
+                 value="มีไฟล์ .exe/.zip หรือไฟล์เสี่ยงให้ดาวน์โหลด">
+          <label class="form-check-label" for="fn_file_exec">📦 มีไฟล์ .exe/.zip หรือไฟล์เสี่ยงให้ดาวน์โหลด</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fn_tld_risky"
+                 value="TLD เสี่ยง/ไม่คุ้น (เช่น .top, .xyz ฯลฯ)">
+          <label class="form-check-label" for="fn_tld_risky">🛰️ ใช้ TLD เสี่ยง/ไม่คุ้น (เช่น .top, .xyz)</label>
+        </div>
+      </div>
 
-  document.getElementById("disclaimerForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
+      <!-- ข้อความเพิ่มเติม -->
+      <div class="section-title">อธิบายเพิ่มเติม (ถ้ามี)</div>
+      <textarea id="extraNote" class="form-control" rows="3"
+                placeholder="เช่น เป็นลิงก์แคมเปญของบริษัท / ผ่าน SSO ก่อนถึงหน้าเว็บจริง / พบข้อความหลอกขอรหัสผ่าน ฯลฯ"></textarea>
+      <div class="hint">* เลือกอย่างน้อย 1 เหตุผลใน “กรณีที่เลือก” หรือพิมพ์คำอธิบายเพิ่มเติม จะช่วยให้ทีมปรับปรุงโมเดลได้แม่นยำขึ้น</div>
 
-    const userName   = document.getElementById("userName").value.trim();
-    const userEmail  = document.getElementById("userEmail").value.trim();
-    const extraNote  = document.getElementById("extraNote").value.trim();
-    const urlVal     = document.getElementById("url").value;
+      <div class="d-flex justify-content-between mt-3">
+        <button type="submit" class="btn btn-primary">ยืนยัน</button>
+        <button type="button" class="close-btn" onclick="closePopup()">ปิด</button>
+      </div>
+    </form>
+  </div>
 
-    const reasons = collectReasons();
+  <script>
+    /* ===== Theme Toggle (Light default; share key with main page) ===== */
+    const themeToggle = document.getElementById('themeToggle');
+    const LS_KEY = 'phish_theme'; // 'light' | 'dark'
 
-    if (reasons.length === 0 && !extraNote) {
-      if (!confirm("ยังไม่ได้เลือกเหตุผลหรือกรอกคำอธิบายเพิ่มเติม ต้องการส่งข้อมูลอยู่หรือไม่?")) {
-        return;
+    function applyTheme(mode){
+      if(mode === 'dark'){
+        document.body.classList.add('theme-dark');
+        themeToggle.classList.add('active');
+        themeToggle.setAttribute('aria-checked','true');
+      }else{
+        document.body.classList.remove('theme-dark');
+        themeToggle.classList.remove('active');
+        themeToggle.setAttribute('aria-checked','false');
       }
     }
+    // init from localStorage (default light)
+    applyTheme(localStorage.getItem(LS_KEY) || 'light');
 
-    const payload = {
-      name: userName,
-      email: userEmail,
-      url: urlVal,
-      reasons: reasons,
-      extra_note: extraNote,
-      timestamp: new Date().toISOString()
-    };
-
-    try {
-      const resp = await fetch('/save_disclaimer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await resp.json();
-      if (!resp.ok || !data.ok) throw new Error(data.error || 'Save failed');
-      alert("ข้อมูลถูกบันทึกแล้ว ขอบคุณสำหรับคำติชม!");
-      window.location.href = '/';
-    } catch (err) {
-      console.error(err);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    function toggleTheme(){
+      const isDark = document.body.classList.toggle('theme-dark');
+      themeToggle.classList.toggle('active', isDark);
+      themeToggle.setAttribute('aria-checked', isDark ? 'true' : 'false');
+      localStorage.setItem(LS_KEY, isDark ? 'dark' : 'light');
     }
-  });
-</script>
+    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } });
 
+    /* ===== Original page logic (unchanged) ===== */
+    // รับ URL ที่ส่งมาจากหน้า index
+    const urlParams = new URLSearchParams(window.location.search);
+    const url = urlParams.get('url') || '';
+    document.getElementById("url").value = url;
+    document.getElementById("displayUrl").textContent = url || '-';
+
+    function closePopup() { window.location.href = '/'; }
+
+    // เปิด/ปิดเหตุผลตามกรณีที่เลือก
+    const typeRadios = document.querySelectorAll('input[name="errType"]');
+    function setSectionEnabled(sectionId, enabled) {
+      const box = document.querySelector(sectionId);
+      if (!box) return;
+      box.classList.toggle('dim', !enabled);
+      box.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.disabled = !enabled;
+        if (!enabled) cb.checked = false;
+      });
+    }
+    function toggleSections() {
+      const selected = document.querySelector('input[name="errType"]:checked')?.value;
+      setSectionEnabled('#fpSection', selected === 'fp');
+      setSectionEnabled('#fnSection', selected === 'fn');
+    }
+    typeRadios.forEach(r => r.addEventListener('change', toggleSections));
+    // เรียกครั้งแรก: ปิดทั้งคู่ไว้ก่อน จนกว่าจะเลือกกรณี
+    setSectionEnabled('#fpSection', false);
+    setSectionEnabled('#fnSection', false);
+
+    // รวมค่าจาก checkbox ภายใน section
+    function collectReasons(sectionSelector) {
+      const cbs = document.querySelectorAll(`${sectionSelector} .form-check-input[type="checkbox"]`);
+      const selected = [];
+      cbs.forEach(b => { if (b.checked) selected.push(b.value); });
+      return selected;
+    }
+
+    document.getElementById("disclaimerForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const userName   = document.getElementById("userName").value.trim();
+      const userEmail  = document.getElementById("userEmail").value.trim();
+      const extraNote  = document.getElementById("extraNote").value.trim();
+      const urlVal     = document.getElementById("url").value;
+      const errTypeEl  = document.querySelector('input[name="errType"]:checked');
+      const errType    = errTypeEl ? errTypeEl.value : '';
+
+      const fpReasons = collectReasons('#fpSection');
+      const fnReasons = collectReasons('#fnSection');
+
+      // ต้องเลือกกรณี และให้มีเหตุผลอย่างน้อย 1 ในกรณีนั้น หรือพิมพ์อธิบายเพิ่ม
+      if (!errType) {
+        alert('กรุณาเลือกกรณีที่เกิดขึ้น (แจ้งเตือนผิด/พลาดเตือน)');
+        return;
+      }
+      if (errType === 'fp' && fpReasons.length === 0 && !extraNote) {
+        if (!confirm('ยังไม่ได้เลือกเหตุผลในกรณี "แจ้งเตือนผิด" และไม่ได้พิมพ์อธิบาย ต้องการส่งอยู่หรือไม่?')) return;
+      }
+      if (errType === 'fn' && fnReasons.length === 0 && !extraNote) {
+        if (!confirm('ยังไม่ได้เลือกเหตุผลในกรณี "พลาดเตือน" และไม่ได้พิมพ์อธิบาย ต้องการส่งอยู่หรือไม่?')) return;
+      }
+
+      const reasons = (errType === 'fp') ? fpReasons
+                     : (errType === 'fn') ? fnReasons
+                     : [...fpReasons, ...fnReasons];
+
+      const payload = {
+        name: userName,
+        email: userEmail,
+        url: urlVal,
+        error_type: errType,        // 'fp' หรือ 'fn'
+        reasons: reasons,           // เหตุผลของกรณีที่เลือก
+        fp_reasons: fpReasons,      // เก็บแยกเพื่อวิเคราะห์
+        fn_reasons: fnReasons,      // เก็บแยกเพื่อวิเคราะห์
+        extra_note: extraNote,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        const resp = await fetch('/save_disclaimer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) throw new Error(data.error || 'Save failed');
+        alert("ข้อมูลถูกบันทึกแล้ว ขอบคุณสำหรับคำติชม!");
+        window.location.href = '/';
+      } catch (err) {
+        console.error(err);
+        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      }
+    });
+  </script>
 </body>
 </html>
