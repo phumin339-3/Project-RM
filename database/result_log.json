@@ -1512,5 +1512,334 @@
       "โดเมน": "www.google.com",
       "อายุโดเมน (วัน)": 10279
     }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:33:07",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.0744352078576937,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:44:57",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07443520785769371,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:48:35",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07443520785769371,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:50:34",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07443520785769371,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:50:59",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07443520785769371,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:52:41",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07443520785769371,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
+  },
+  {
+    "url": "https://www.google.com/",
+    "timestamp": "2025-12-24 20:56:27",
+    "result": "safe",
+    "unsafe_probability": 0.2186,
+    "reasons": [
+      {
+        "feature": "domain_age_days",
+        "label": "อายุโดเมน (วัน)",
+        "value": "10327",
+        "contribution": -0.34779141758624044,
+        "explanation": "โดเมนเปิดใช้งานมานาน (10327 วัน)"
+      },
+      {
+        "feature": "days_since_update",
+        "label": "จำนวนวันตั้งแต่ update ล่าสุด",
+        "value": "2298",
+        "contribution": -0.15284340274230568,
+        "explanation": "จำนวนวันตั้งแต่ update ล่าสุด: 2298"
+      },
+      {
+        "feature": "length_hostname",
+        "label": "ความยาวชื่อโดเมน",
+        "value": "14",
+        "contribution": -0.07443520785769371,
+        "explanation": "ความยาวชื่อโดเมน: 14"
+      },
+      {
+        "feature": "url_entropy",
+        "label": "ความซับซ้อนของ URL",
+        "value": "3.642489673166126",
+        "contribution": -0.057068405758382845,
+        "explanation": "ความซับซ้อนของ URL: 3.642489673166126"
+      },
+      {
+        "feature": "has_security_headers",
+        "label": "มี Security Headers",
+        "value": "พบ",
+        "contribution": -0.021001234741876262,
+        "explanation": "มี Security Headers: พบ"
+      }
+    ],
+    "website_info": {
+      "โดเมน": "www.google.com",
+      "อายุโดเมน (วัน)": 10327
+    }
   }
 ]
