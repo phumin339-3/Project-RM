@@ -468,6 +468,20 @@
       </div>
     </div>
 
+    <!-- ===== Website Preview ===== -->
+    <div id="previewBox" class="mt-3 d-none text-center">
+      <h6>🔍 Website Preview</h6>
+      <img
+        id="previewImg"
+        style="
+          max-width: 100%;
+          border-radius: 14px;
+          box-shadow: 0 12px 30px rgba(0,0,0,.25);
+        "
+      />
+    </div>
+
+
     <!-- 3 columns -->
     <div id="tri" class="tri">
       <!-- LEFT: Website Info -->
@@ -646,12 +660,49 @@
     }
 
     function showExplanation(){ document.getElementById("resultExplanation").classList.remove("d-none"); }
-    function showDisclaimerButton(){ document.getElementById("disclaimerBtnContainer").classList.remove("d-none"); }
-    document.getElementById('disclaimerBtn')?.addEventListener('click', function() {
-      const currentUrl = urlInput.value.trim();
-      if (!currentUrl) { alert('กรุณากรอก URL'); return; }
-      window.location.href = "disclaimerPopup.html?url=" + encodeURIComponent(currentUrl);
-    });
+// ================= Disclaimer Button Logic =================
+
+// โชว์ปุ่ม Disclaimer เฉพาะ user ที่ login แล้ว
+function showDisclaimerButton() {
+  const token = localStorage.getItem("firebase_token");
+
+  
+  if (!token) {
+    document
+      .getElementById("disclaimerBtnContainer")
+      ?.classList.add("d-none");
+    return;
+  }
+
+  // ✅ login แล้ว → แสดงปุ่ม
+  document
+    .getElementById("disclaimerBtnContainer")
+    ?.classList.remove("d-none");
+}
+
+// คลิกปุ่ม Disclaimer
+document
+  .getElementById("disclaimerBtn")
+  ?.addEventListener("click", function () {
+
+    const token = localStorage.getItem("firebase_token");
+    if (!token) {
+      alert("กรุณาเข้าสู่ระบบก่อนใช้งาน");
+      return;
+    }
+
+    const currentUrl = urlInput.value.trim();
+    if (!currentUrl) {
+      alert("กรุณากรอก URL");
+      return;
+    }
+
+    // เปิดหน้า disclaimer พร้อม URL ที่ตรวจ
+    window.location.href =
+      "disclaimerPopup.html?url=" +
+      encodeURIComponent(currentUrl);
+  });
+
 
     /* banner */
     function showBanner(level, text){
@@ -717,6 +768,26 @@
         const level = (data.result==="safe") ? "safe" :
                       (data.result==="suspicious" ? "suspicious" : "unsafe");
         showBanner(level, data.message || "");
+
+        // ===== Website Preview =====
+        const previewBox = document.getElementById("previewBox");
+        const previewImg = document.getElementById("previewImg");
+
+        if (data.preview_image) {
+          previewImg.src = "data:image/png;base64," + data.preview_image;
+          previewBox.classList.remove("d-none");
+
+          // ถ้าเว็บอันตราย → เบลอ
+          if (data.result === "unsafe") {
+            previewImg.style.filter = "blur(8px)";
+            previewImg.title = "เว็บไซต์นี้มีความเสี่ยง คลิกเพื่อดู";
+          } else {
+            previewImg.style.filter = "none";
+          }
+        } else {
+          previewBox.classList.add("d-none");
+        }
+
 
         // Website Info
         const whoisEntries = [];
@@ -846,8 +917,9 @@
 };
 
 document.getElementById("profileBtn").onclick = () => {
-  alert("Profile (ต่อ Firestore ได้ภายหลัง)");
+  window.location.href = "/profile.html";
 };
+
 
 document.getElementById("historyBtn").onclick = () => {
   window.location.href = "/history.html";

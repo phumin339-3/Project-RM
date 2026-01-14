@@ -207,11 +207,11 @@
       <div class="row">
         <div class="col-12 col-md-6 mb-3">
           <label for="userName" class="form-label">ชื่อผู้ใช้</label>
-          <input type="text" id="userName" class="form-control" required>
+          <input type="text" id="userName" class="form-control" readonly>
         </div>
         <div class="col-12 col-md-6 mb-3">
           <label for="userEmail" class="form-label">อีเมลผู้ใช้</label>
-          <input type="email" id="userEmail" class="form-control" required>
+          <input type="email" id="userEmail" class="form-control" readonly>
         </div>
       </div>
 
@@ -384,6 +384,13 @@
   </div>
 
   <script>
+
+    const token = localStorage.getItem("firebase_token");
+    if (!token) {
+      alert("กรุณาเข้าสู่ระบบก่อนใช้งาน");
+      window.location.href = "/";
+    }
+
     /* ===== Theme Toggle (Light default; share key with main page) ===== */
     const themeToggle = document.getElementById('themeToggle');
     const LS_KEY = 'phish_theme'; // 'light' | 'dark'
@@ -449,6 +456,23 @@
       return selected;
     }
 
+    // ===== Fill user info from Firebase token =====
+    async function fillUserInfo() {
+      try {
+        const token = localStorage.getItem("firebase_token");
+        if (!token) return;
+
+        // decode แบบง่าย (ไม่ verify แค่แสดง)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        document.getElementById("userEmail").value = payload.email || "-";
+        document.getElementById("userName").value =
+          payload.name || payload.email?.split("@")[0] || "User";
+      } catch (e) {
+        console.warn("Cannot parse token", e);
+      }
+    }
+    fillUserInfo();
+
     document.getElementById("disclaimerForm").addEventListener("submit", async function(event) {
       event.preventDefault();
 
@@ -493,7 +517,11 @@
       try {
         const resp = await fetch('/save_disclaimer', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem("firebase_token")
+        },
+
           body: JSON.stringify(payload)
         });
         const data = await resp.json();

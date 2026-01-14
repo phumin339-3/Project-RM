@@ -11,10 +11,59 @@ import pandas as pd
 import numpy as np
 from treeinterpreter import treeinterpreter as ti
 
+from preview_capture import capture_preview
+import time
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+from firebase_admin import auth as fb_auth
+
 # ---------------- PATHS ----------------
 app_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(app_dir, ".."))
 template_dir = os.path.join(project_root, "templates")
+
+SERVICE_ACCOUNT_PATH = os.path.join(app_dir, "serviceAccountKey.json")
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
+def save_disclaimer_firestore(uid: str, record: dict):
+    ref = (
+        db.collection("users")
+          .document(uid)
+          .collection("disclaimers")
+          .document()
+    )
+    record["createdAt"] = firestore.SERVER_TIMESTAMP
+    ref.set(record)
+    return ref.id
+
+def save_history_firestore(uid: str, record: dict):
+    ref = db.collection("users").document(uid).collection("history").document()
+    record2 = dict(record)
+    record2["createdAt"] = firestore.SERVER_TIMESTAMP
+    ref.set(record2)
+    return ref.id
+
+def get_uid_from_request():
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return None
+
+    id_token = auth_header.replace("Bearer ", "").strip()
+    if not id_token:
+        return None
+
+    try:
+        decoded = fb_auth.verify_id_token(id_token)
+        return decoded.get("uid")
+    except Exception as e:
+        print("[AUTH] invalid token:", e)
+        return None
 
 # หาโฟลเดอร์ที่ "เขียนได้จริง"
 def _ensure_writable_dir(candidates):
@@ -331,6 +380,17 @@ def check_url():
         # 1) Normalize + Extract features
         url_norm = normalize_url(url)   # <<< สำคัญ: ให้มี scheme เสมอ
         feats = analyze_full_url(url_norm)  # url_checker ควร normalize ข้างในด้วยแล้ว แต่ใส่ซ้ำไม่เสียหาย
+        # ===== Capture website preview =====
+        preview = None
+        try:
+            preview = capture_preview(
+                url_norm,
+                out_dir=os.path.join(db_dir, "previews"),
+                filename=f"{int(time.time())}.png"
+            )
+        except Exception as e:
+            print("[PREVIEW] capture failed:", e)
+
         if feats.get("domain_age_days") is None:
             feats["domain_age_days"] = -1
 
@@ -501,7 +561,7 @@ def check_url():
         host = parsed.netloc or feats.get("url", url_norm)
         message = result_message(final_label, host)
 
-        # 8) Log
+        # 8) Log (Firestore)
         record = {
             "url": feats.get("url", url_norm),
             "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
@@ -510,7 +570,11 @@ def check_url():
             "reasons": reasons,
             "website_info": website_info,
         }
-        log_path_used = save_log_record(record)
+
+        uid = get_uid_from_request()
+        doc_id = None
+        if uid:
+            doc_id = save_history_firestore(uid, record)
 
         # 9) Response
         return jsonify({
@@ -522,8 +586,10 @@ def check_url():
             "website_info": website_info,
             "reasons": reasons,
             "bias": bias_val,
-            "log_path": log_path_used,
+            "history_id": doc_id,
+            "preview_image": preview["base64"] if preview else None
         })
+
 
     except Exception as e:
         traceback.print_exc()
@@ -536,23 +602,59 @@ def disclaimer_popup():
 @app.route("/save_disclaimer", methods=["POST"])
 def save_disclaimer():
     try:
+        uid = get_uid_from_request()
+        if not uid:
+            return jsonify({"ok": False, "error": "Unauthorized"}), 401
+
         data = request.get_json()
-        disclaimer_file_path = os.path.join(db_dir, "disclaimer.json")
-        if os.path.exists(disclaimer_file_path):
-            with open(disclaimer_file_path, "r", encoding="utf-8") as f:
-                try:
-                    disclaimers = json.load(f)
-                except json.JSONDecodeError:
-                    disclaimers = []
-        else:
-            disclaimers = []
-        disclaimers.append(data)
-        with open(disclaimer_file_path, "w", encoding="utf-8") as f:
-            json.dump(disclaimers, f, ensure_ascii=False, indent=2)
-        return jsonify({"ok": True, "message": "ข้อมูลถูกบันทึกแล้ว!"}), 200
+
+        doc_id = save_disclaimer_firestore(uid, data)
+
+        return jsonify({
+            "ok": True,
+            "id": doc_id
+        })
     except Exception as e:
-        print(f"Error saving disclaimer: {e}")
+        print(e)
         return jsonify({"ok": False, "error": str(e)}), 500
+
+    
+@app.route("/profile.html")
+def profile_page():
+    return render_template("profile.html")
+
+@app.route("/api/history", methods=["GET"])
+def get_history():
+    try:
+        uid = get_uid_from_request()
+        if not uid:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        docs = (
+            db.collection("users")
+              .document(uid)
+              .collection("history")
+              .order_by("createdAt", direction=firestore.Query.DESCENDING)
+              .limit(50)
+              .stream()
+        )
+
+        out = []
+        for d in docs:
+            item = d.to_dict()
+            item["id"] = d.id
+            out.append(item)
+
+        return jsonify(out)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+    
+@app.route("/history.html")
+def history_page():
+    return render_template("history.html")
+
 
 if __name__ == "__main__":
     print("📂 template_dir:", template_dir)
