@@ -13,18 +13,27 @@
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
     "notifications",
-    "webRequest"
+    "webRequest",
+    "identity"
   ],
+
   "host_permissions": ["<all_urls>"],
 
-  "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html" },
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html"
+  },
 
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
 
-  "declarative_net_request": { "rule_resources": [] },
+  "declarative_net_request": {
+    "rule_resources": []
+  },
 
   "web_accessible_resources": [
     {

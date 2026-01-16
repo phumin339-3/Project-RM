@@ -109,13 +109,37 @@
 
       <div style="margin-top:12px">หมายเหตุเพิ่มเติม</div>
       <textarea id="note" placeholder="เช่น องค์กรของเราใช้ลิงก์นี้จริง / หรือ มีฟอร์มหลอกให้กรอกข้อมูล"></textarea>
+      <!-- Email opt-in -->
+
+      <label class="item" style="margin-top:12px">
+        <input type="checkbox" id="allowEmail" />
+        ยินยอมให้บันทึกบัญชี Google (อีเมล) เพื่อการวิจัย
+      </label>
+
+      <div id="emailPreview" class="muted" style="margin-left:26px; display:none">
+        อีเมลที่ส่ง: <span id="emailText"></span>
+      </div>
+
+      <!-- Email fallback input -->
+      <div id="emailFallback" style="display:none; margin-left:26px; margin-top:6px">
+        <input
+          type="email"
+          id="manualEmail"
+          placeholder="กรอกอีเมล (กรณีระบบดึงไม่ได้)"
+          style="width:320px; padding:8px; border-radius:8px; border:1px solid #e5e7eb"
+        />
+        <div class="muted" style="font-size:12px">
+          กรอกอีเมลเพื่อเพิ่มความน่าเชื่อถือในการส่งฟีดแบ็ก
+        </div>
+      </div>
 
       <div class="btns">
         <button id="btnBack" class="ghost">ย้อนกลับ</button>
-        <button id="btnExport" class="primary">Export JSON</button>
+        <button id="btnExport" class="primary">ส่ง</button>
       </div>
 
-      <div class="hint">ไฟล์ที่ได้จะเป็น <code>.json</code> (เฉพาะหมวดที่คุณเลือกอยู่ตอนกด Export) — ส่งต่อให้ทีมวิจัยได้ทันที</div>
+      <div class="hint">ข้อมูลจะถูกส่งเข้าระบบทันที (เฉพาะหมวดที่คุณเลือก) เพื่อใช้ในการปรับปรุงโมเดลในรุ่นถัดไป</div>
+
     </div>
   </div>
 

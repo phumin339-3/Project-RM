@@ -353,14 +353,14 @@ function bindMasterSwitch() {
     await sendMessage({ action: "set_enabled", enabled });
   
     // อัปเดต badge ให้ตรงกับสถานะทันทีที่ผู้ใช้สลับ
-    if (!enabled) {
-      chrome.action.setBadgeText({ text: "OFF" });
-      chrome.action.setBadgeBackgroundColor({ color: "#9aa0a6" });
-    } else {
+    //if (!enabled) {
+     // chrome.action.setBadgeText({ text: "OFF" });
+     // chrome.action.setBadgeBackgroundColor({ color: "#9aa0a6" });
+   // } else {
       // เปิดใช้งาน: เคลียร์ badge (background จะใส่เตือนให้ถ้าตรวจพบความเสี่ยง)
-      chrome.action.setBadgeText({ text: "" });
-      chrome.action.setBadgeBackgroundColor({ color: "#16a34a" });
-    }
+    //  chrome.action.setBadgeText({ text: "" });
+    //  chrome.action.setBadgeBackgroundColor({ color: "#16a34a" });
+   // }
   });
   
 }

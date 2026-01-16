@@ -7,6 +7,11 @@
 // + BYPASS-FIX: ยังตรวจ/บันทึกระหว่าง bypass แต่ไม่เด้งหน้าเตือน
 
 /***** CONFIG *****/
+
+// ===== FIRESTORE (feedback) =====
+const FIRESTORE_FEEDBACK_URL =
+  "https://firestore.googleapis.com/v1/projects/phishing-c9e6b/databases/(default)/documents/GoogleExtension_Feedback";
+
 const HISTORY_KEY = "check_history";
 const HISTORY_LIMIT = 300;
 
@@ -39,17 +44,19 @@ function updateBadgeForEnabled(on) {
   }
 }
 async function loadEnabled() {
-  const obj = await chrome.storage.local.get(ENABLED_KEY);
+  const obj = await chrome.storage.sync.get(ENABLED_KEY);
   EXT_ENABLED = obj[ENABLED_KEY] !== false; // default true
   updateBadgeForEnabled(EXT_ENABLED);
   return EXT_ENABLED;
 }
+
 async function setEnabled(on) {
   EXT_ENABLED = !!on;
-  await chrome.storage.local.set({ [ENABLED_KEY]: EXT_ENABLED });
+  await chrome.storage.sync.set({ [ENABLED_KEY]: EXT_ENABLED });
   updateBadgeForEnabled(EXT_ENABLED);
   chrome.runtime.sendMessage({ action: "enabled_changed", enabled: EXT_ENABLED }).catch(()=>{});
 }
+
 
 /***** ALLOWLIST (CSV + USER) *****/
 const ALLOWLIST_CSV_PATH = "data/allowlist.csv";
@@ -105,15 +112,17 @@ async function loadAllowlistFromCsv() {
 
 async function loadUserAllowlist() {
   if (USER_ALLOWLIST_SET) return USER_ALLOWLIST_SET;
-  const obj = await chrome.storage.local.get(ALLOWLIST_USER_KEY);
+  const obj = await chrome.storage.sync.get(ALLOWLIST_USER_KEY);
   const arr = Array.isArray(obj[ALLOWLIST_USER_KEY]) ? obj[ALLOWLIST_USER_KEY] : [];
   USER_ALLOWLIST_SET = new Set(arr.map(normalizeDomainToETLD1));
   return USER_ALLOWLIST_SET;
 }
+
 async function saveUserAllowlist(set) {
-  await chrome.storage.local.set({ [ALLOWLIST_USER_KEY]: Array.from(set) });
+  await chrome.storage.sync.set({ [ALLOWLIST_USER_KEY]: Array.from(set) });
   chrome.runtime.sendMessage({ action: "allowlist_updated" }).catch(()=>{});
 }
+
 function isAllowedByAny(hostname) {
   const base = normalizeDomainToETLD1(hostname);
   return (ALLOWLIST_SET && ALLOWLIST_SET.has(base)) || (USER_ALLOWLIST_SET && USER_ALLOWLIST_SET.has(base));
@@ -248,6 +257,42 @@ function shouldAutoCheck(url) {
   return (Date.now() - last) > MIN_RECHECK_MS;
 }
 function escapeRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+function getUserEmail() {
+  return new Promise((resolve) => {
+    chrome.identity.getProfileUserInfo((info) => {
+      resolve(info?.email || null);
+    });
+  });
+}
+
+
+function toFirestoreDoc(data) {
+  const fields = {};
+
+  for (const [k, v] of Object.entries(data)) {
+    if (Array.isArray(v)) {
+      fields[k] = {
+        arrayValue: {
+          values: v.map(x => ({ stringValue: String(x) }))
+        }
+      };
+    } else if (typeof v === "string") {
+      fields[k] = { stringValue: v };
+    } else if (typeof v === "number") {
+      fields[k] = { doubleValue: v };
+    } else if (typeof v === "boolean") {
+      fields[k] = { booleanValue: v };
+    } else {
+      fields[k] = { stringValue: String(v) };
+    }
+  }
+
+  fields.ts = { timestampValue: new Date().toISOString() };
+
+  return { fields };
+}
+
 
 /***** BYPASS (ต่อแท็บ สำหรับ model-unsafe เท่านั้น) *****/
 const bypassMap = new Map(); // tabId -> { base: expireMs, ... }
@@ -807,48 +852,143 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })();
     return true;
   }
+// ======= FEEDBACK APIs =======
 
-  // ======= FEEDBACK APIs =======
-  if (msg?.action === "feedback_add") {
-    (async () => {
-      try {
-        const entry = {
-          ts: nowISO(),
-          url: msg.url || "",
-          domain: msg.domain || "",
-          model_label: msg.model_label || "",   // SAFE/SUSPECT/UNSAFE
-          user_claim: msg.user_claim || "",     // "not_phishing" | "is_phishing"
-          flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
-          note: String(msg.note || "").slice(0, 2000)
-        };
-        await appendFeedback(entry);
-        sendResponse({ ok: true });
-      } catch (e) { sendResponse({ ok:false, error:String(e) }); }
-    })();
-    return true;
-  }
-  if (msg?.action === "feedback_list") {
-    (async () => {
-      const items = await loadFeedback();
-      items.sort((a,b)=> (a.ts > b.ts ? -1 : 1));
-      sendResponse({ ok:true, items });
-    })();
-    return true;
-  }
-  if (msg?.action === "feedback_clear") {
-    (async () => {
-      await saveFeedback([]);
-      sendResponse({ ok:true });
-    })();
-    return true;
-  }
+// 1) เก็บ feedback ลง local storage (ของเดิมคุณ)
+if (msg?.action === "feedback_add") {
+  (async () => {
+    try {
+      const entry = {
+        ts: nowISO(),
+        url: msg.url || "",
+        domain: msg.domain || "",
+        model_label: msg.model_label || "",   // SAFE / SUSPECT / UNSAFE
+        user_claim: msg.user_claim || "",     // not_phishing | is_phishing
+        flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
+        note: String(msg.note || "").slice(0, 2000)
+      };
+      await appendFeedback(entry);
+      sendResponse({ ok: true });
+    } catch (e) {
+      sendResponse({ ok: false, error: String(e) });
+    }
+  })();
+  return true;
+}
+
+// 2) list feedback (local)
+if (msg?.action === "feedback_list") {
+  (async () => {
+    const items = await loadFeedback();
+    items.sort((a, b) => (a.ts > b.ts ? -1 : 1));
+    sendResponse({ ok: true, items });
+  })();
+  return true;
+}
+
+// 3) clear feedback (local)
+if (msg?.action === "feedback_clear") {
+  (async () => {
+    await saveFeedback([]);
+    sendResponse({ ok: true });
+  })();
+  return true;
+}
+
+// 4) ส่ง feedback เข้า Firestore (ใหม่)
+if (msg?.action === "feedback_send_firestore") {
+  (async () => {
+    try {
+      const doc = toFirestoreDoc({
+        url: msg.url || "",
+        domain: msg.domain || "",
+        model_label: msg.model_label || "",
+        user_claim: msg.user_claim || "",
+        flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
+        note: String(msg.note || "").slice(0, 2000),
+        source: "chrome_extension"
+      });
+
+      const res = await fetch(FIRESTORE_FEEDBACK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(doc)
+      });
+
+      sendResponse({ ok: res.ok, status: res.status });
+    } catch (e) {
+      sendResponse({ ok: false, error: String(e) });
+    }
+  })();
+  return true;
+}
+if (msg?.action === "get_user_email_preview") {
+  chrome.identity.getProfileUserInfo((info) => {
+    console.log("👤 chrome identity info:", info);
+
+    const email = info && typeof info.email === "string" && info.email.length
+      ? info.email
+      : null;
+
+    sendResponse({ email });
+  });
+  return true;
+}
+
+// 5) เก็บ local + ส่ง Firestore พร้อมกัน (แนะนำให้ใช้ตัวนี้)
+if (msg?.action === "feedback_add_and_send") {
+  (async () => {
+    try {
+      const entry = {
+        ts: nowISO(),
+        url: msg.url || "",
+        domain: msg.domain || "",
+        model_label: msg.model_label || "",
+        user_claim: msg.user_claim || "",
+        flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
+        note: String(msg.note || "").slice(0, 2000),
+        email: msg.allow_email ? (msg.email || "") : ""
+      };
+      
+
+      // เก็บ local ก่อน (กันเน็ตล่ม)
+      await appendFeedback(entry);
+
+      // ส่ง Firestore
+      const doc = toFirestoreDoc({
+        ...entry,
+        source: "chrome_extension"
+      });
+
+      const res = await fetch(FIRESTORE_FEEDBACK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(doc)
+      });
+
+      sendResponse({ ok: res.ok, status: res.status });
+    } catch (e) {
+      sendResponse({ ok: false, error: String(e) });
+    }
+  })();
+  return true;
+}
 
 });
 
-/***** WELCOME / ONBOARDING *****/
+/***** WELCOME / ONBOARDING + SYNC DEFAULT *****/
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
-    chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+    // 🔐 ค่า default ที่ sync ติด Google account
+    await chrome.storage.sync.set({
+      [ENABLED_KEY]: true,
+      [ALLOWLIST_USER_KEY]: []
+    });
+
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("welcome.html")
+    });
+
   } else if (details.reason === "update") {
     try {
       const self = await chrome.management.getSelf?.();
@@ -858,12 +998,15 @@ chrome.runtime.onInstalled.addListener(async (details) => {
         const today = new Date().toDateString();
         if (last !== today) {
           await chrome.storage.session.set({ [KEY]: today });
-          chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html?from=dev") });
+          chrome.tabs.create({
+            url: chrome.runtime.getURL("welcome.html?from=dev")
+          });
         }
       }
     } catch {}
   }
 });
+
 
 /***** INIT *****/
 chrome.runtime.onStartup?.addListener(() => {

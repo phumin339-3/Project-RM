@@ -3,6 +3,10 @@
 (function () {
   const $ = (s) => document.querySelector(s);
 
+  const emailFallback = document.getElementById("emailFallback");
+  const manualEmail = document.getElementById("manualEmail");
+
+
   // ---- Read query ----
   const params = new URLSearchParams(location.search);
   const url = params.get("url") || "";
@@ -20,6 +24,36 @@
   const groupNot = $("#group-not");
   const groupIs  = $("#group-is");
 
+  const allowEmail = document.getElementById("allowEmail");
+  const emailPreview = document.getElementById("emailPreview");
+  const emailText = document.getElementById("emailText");
+
+  allowEmail.addEventListener("change", () => {
+    if (!allowEmail.checked) {
+      emailPreview.style.display = "none";
+      emailFallback.style.display = "none";
+      manualEmail.value = "";
+      return;
+    }
+  
+    chrome.runtime.sendMessage(
+      { action: "get_user_email_preview" },
+      (res) => {
+        if (res?.email) {
+          emailText.textContent = maskEmail(res.email);
+          emailPreview.style.display = "";
+          emailFallback.style.display = "none";
+        } else {
+          emailText.textContent = "(ไม่พบอีเมลจาก Google)";
+          emailPreview.style.display = "";
+          emailFallback.style.display = "";
+        }
+      }
+    );
+  });
+  
+
+
   let currentMode = "not_phishing"; // default
 
   segNot.addEventListener("click", () => setMode("not_phishing"));
@@ -34,20 +68,39 @@
 
   $("#btnExport").addEventListener("click", () => {
     const payload = buildPayload();
-    const pretty = JSON.stringify(payload, null, 2);
-    const blob = new Blob([pretty], { type: "application/json" });
-    const a = document.createElement("a");
-    const ts = new Date().toISOString().replace(/[:.]/g, "-");
-    a.href = URL.createObjectURL(blob);
-    a.download = `feedback_${payload.user_claim}_${ts}.json`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      URL.revokeObjectURL(a.href);
-      a.remove();
-    }, 500);
+  
+    const email =
+      emailText.textContent && !emailText.textContent.includes("ไม่พบ")
+        ? emailText.textContent
+        : manualEmail.value || "";
+  
+    chrome.runtime.sendMessage(
+      {
+        action: "feedback_add_and_send",
+        ...payload,
+        allow_email: allowEmail.checked,
+        email: email
+      },
+      (res) => {
+        if (res?.ok) {
+          alert("ส่งฟีดแบ็กเรียบร้อยแล้ว");
+          window.close();
+        } else {
+          alert("ส่งฟีดแบ็กไม่สำเร็จ");
+          console.error(res);
+        }
+      }
+    );
   });
-
+  
+  
+  
+  function maskEmail(email) {
+    if (!email || !email.includes("@")) return "";
+    const [name, domain] = email.split("@");
+    return name.slice(0, 3) + "***@" + domain;
+  }
+  
   // ===== helpers =====
   function safeHost(u){
     try{ return new URL(u).hostname; }catch{ return ""; }
