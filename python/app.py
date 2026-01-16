@@ -655,6 +655,62 @@ def get_history():
 def history_page():
     return render_template("history.html")
 
+@app.route("/disclaimer.html")
+def disclaimer_page():
+    return render_template("disclaimer.html")
+
+
+@app.route("/api/disclaimers", methods=["GET"])
+def get_disclaimers():
+    try:
+        uid = get_uid_from_request()
+        if not uid:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        docs = (
+            db.collection("users")
+              .document(uid)
+              .collection("disclaimers")
+              .limit(50)
+              .stream()
+        )
+
+        out = []
+        for d in docs:
+            item = d.to_dict()
+            item["id"] = d.id
+            out.append(item)
+
+        return jsonify(out)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/disclaimers/all", methods=["GET"])
+def get_all_disclaimers():
+    try:
+        uid = get_uid_from_request()
+        if not uid:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        results = []
+
+        docs = (
+            db.collection_group("disclaimers")
+              .order_by("createdAt", direction=firestore.Query.DESCENDING)
+              .stream()
+        )
+
+        for d in docs:
+            item = d.to_dict()
+            item["id"] = d.id
+            item["path"] = d.reference.path   # debug / optional
+            results.append(item)
+
+        return jsonify(results)
+
+    except Exception as e:
+        print("[DISCLAIMERS][ALL] ERROR:", e)
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     print("📂 template_dir:", template_dir)

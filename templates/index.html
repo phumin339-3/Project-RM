@@ -378,6 +378,9 @@
       <button class="list-group-item list-group-item-action" id="historyBtn">
         <i class="bi bi-clock-history me-2"></i> History
       </button>
+      <button class="list-group-item list-group-item-action" id="disclaimerListBtn">
+        <i class="bi bi-shield-exclamation me-2"></i> Disclaimer
+      </button>      
       <button class="list-group-item list-group-item-action text-danger" id="logoutBtn">
         <i class="bi bi-box-arrow-right me-2"></i> Logout
       </button>
@@ -924,6 +927,11 @@ document.getElementById("profileBtn").onclick = () => {
 document.getElementById("historyBtn").onclick = () => {
   window.location.href = "/history.html";
 };
+
+document.getElementById("disclaimerListBtn").onclick = () => {
+  window.location.href = "/disclaimer.html";
+};
+
 
   /* Google login */
   googleLoginBtn.onclick = async () => {
