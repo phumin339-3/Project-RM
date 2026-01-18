@@ -235,7 +235,7 @@ function renderLogs(items) {
     pill.addEventListener("click", () => { showExplainModal(it); });
 
     const fbBtn = document.createElement("button");
-    fbBtn.textContent = "ฟีดแบ็ก";
+    fbBtn.textContent = "FEEDBACK";
     fbBtn.className = "pill-fb " + (cls.cls === "bad" ? "bad" : (cls.cls === "good" ? "good" : "warn"));
     fbBtn.addEventListener("click", () => openFeedbackPage(it));
 

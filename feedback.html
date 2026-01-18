@@ -64,7 +64,7 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>ส่งฟีดแบ็ก</h1>
+    <h1>FEEDBACK</h1>
     <p class="muted">ช่วยบอกเราว่าผลประเมิน “เข้าใจผิด” อย่างไร เพื่อช่วยปรับปรุงในรุ่นถัดไป</p>
 
     <div class="card">
@@ -82,17 +82,17 @@
 
       <!-- Mode switch -->
       <div class="segbar">
-        <button id="segNot" class="seg active">จริง ๆ ไม่ใช่ฟิชชิง แต่ขึ้นว่าไม่ปลอดภัย</button>
-        <button id="segIs"  class="seg">จริง ๆ เป็นฟิชชิง แต่ขึ้นว่าปลอดภัย</button>
+        <button id="segNot" class="seg active">เว็บไซต์นี้ปลอดภัย / ไม่ใช่ฟิชชิง</button>
+        <button id="segIs"  class="seg">เว็บไซต์นี้ไม่ปลอดภัย / เป็นฟิชชิง</button>
       </div>
 
       <!-- NOT PHISHING group -->
       <div id="group-not" class="box">
         <div class="muted" style="margin-bottom:6px">รายละเอียด (กรณี <b>ไม่ใช่ฟิชชิง</b>)</div>
         <label class="item"><input type="checkbox" value="brand_official" /> เป็นเว็บทางการขององค์กร/แบรนด์</label>
-        <label class="item"><input type="checkbox" value="known_trust" /> ใช้งานประจำและเชื่อถือได้</label>
-        <label class="item"><input type="checkbox" value="typo_wrong" /> หลุดเลขพารามิเตอร์/พาท/ซับโดเมน</label>
-        <label class="item"><input type="checkbox" value="shortener" /> เป็นลิงก์ย่อหรือลิงก์แคมเปญการตลาด</label>
+        <label class="item"><input type="checkbox" value="known_trust" /> ใช้งานเป็นประจำโดยไม่เคยมีปัญหา</label>
+        <label class="item"><input type="checkbox" value="shortener" /> เป็นลิงก์ย่อหรือลิงก์แคมเปญการตลาด/เข้าผ่านแอปหรือช่องทางทางการ</label>
+        <label class="item"><input type="checkbox" value="shortener" /> เป็นเว็บข่าว / เว็บข้อมูลทั่วไป</label>
         <label class="item"><input type="checkbox" value="other" /> อื่น ๆ</label>
       </div>
 
@@ -100,9 +100,9 @@
       <div id="group-is" class="box" style="display:none">
         <div class="muted" style="margin-bottom:6px">รายละเอียด (กรณี <b>เป็นฟิชชิงจริง</b>)</div>
         <label class="item"><input type="checkbox" value="fake_login" /> หน้าเลียนแบบ/หลอกให้ล็อกอิน</label>
-        <label class="item"><input type="checkbox" value="payment_scam" /> หลอกโอนเงิน/กิฟต์/โอน</label>
-        <label class="item"><input type="checkbox" value="typosquat" /> ใช้โดเมน/สะกดคล้ายแบรนด์ดัง</label>
-        <label class="item"><input type="checkbox" value="suspicious_redirect" /> มีรีไดเรกต์/พาไปหน้าดักเคลม/ติดตั้ง</label>
+        <label class="item"><input type="checkbox" value="payment_scam" /> มีการเด้งไปหลายหน้า</label>
+        <label class="item"><input type="checkbox" value="typosquat" /> ชื่อเว็บคล้ายของจริงแต่สะกดแปลก</label>
+        <label class="item"><input type="checkbox" value="suspicious_redirect" /> พยายามให้กรอกข้อมูลสำคัญ</label>
         <label class="item"><input type="checkbox" value="malware" /> แจกไฟล์/โปรแกรมน่าสงสัย</label>
         <label class="item"><input type="checkbox" value="other" /> อื่น ๆ</label>
       </div>
