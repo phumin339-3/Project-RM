@@ -293,14 +293,12 @@
       transform: translateX(0); opacity:1; filter: blur(0);
     }
 
-    #disclaimerBtnContainer {
-      position: absolute;
-      bottom: -50px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      display: block;
+    #disclaimerBtnContainer{
+      position: static;
+      transform: none;
+      z-index: auto;
     }
+
 
     #panelInfo h6 { display:none; }
     h6 { color: var(--ink); text-shadow: none; }
@@ -514,19 +512,19 @@
         </div>
       </section>
 
-      <!-- CENTER: Check -->
-      <div class="d-flex align-items-center justify-content-center">
+      <!-- CENTER: Check + Disclaimer -->
+      <div class="d-flex flex-column align-items-center justify-content-center">
         <button id="checkBtn" class="round-btn" disabled>
           <div class="spinner"></div>
           <div>Check</div>
           <div class="pct" id="pctText">0%</div>
         </button>
+
+        <div id="disclaimerBtnContainer" class="text-center d-none mt-3">
+          <button id="disclaimerBtn" class="btn btn-danger">Disclaimer</button>
+        </div>
       </div>
 
-      <!-- Disclaimer Button -->
-      <div id="disclaimerBtnContainer" class="text-center d-none">
-        <button id="disclaimerBtn" class="btn btn-danger">Disclaimer</button>
-      </div>
 
       <!-- RIGHT: Reasons -->
       <section id="panelReason" class="panel">

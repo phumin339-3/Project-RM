@@ -187,201 +187,157 @@
 </head>
 <body>
   <!-- Night Mode slide switch (top-right) -->
-  <div class="mode-toggle">
-    <span class="label">โหมดกลางคืน</span>
-    <div id="themeToggle" class="toggle" role="switch" aria-checked="false" tabindex="0"></div>
-  </div>
+<div class="mode-toggle">
+  <span class="label">โหมดกลางคืน</span>
+  <div id="themeToggle" class="toggle" role="switch" aria-checked="false" tabindex="0"></div>
+</div>
 
-  <div class="popup">
-    <h3>Disclaimer Confirmation</h3>
-    <form id="disclaimerForm">
-      <input type="hidden" id="url" name="url" value="" />
+<div class="popup">
+  <h3>ยืนยันการแจ้งข้อมูลเพิ่มเติม</h3>
 
-      <!-- URL แสดงอ่านอย่างเดียว -->
-      <div class="mb-3">
-        <label class="form-label">URL</label>
-        <div id="displayUrl" class="url-pill"></div>
+  <form id="disclaimerForm">
+    <input type="hidden" id="url" name="url" value="" />
+
+    <!-- URL -->
+    <div class="mb-3">
+      <label class="form-label">เว็บไซต์ที่ตรวจสอบ</label>
+      <div id="displayUrl" class="url-pill"></div>
+    </div>
+
+    <!-- ผู้ใช้ -->
+    <div class="row">
+      <div class="col-12 col-md-6 mb-3">
+        <label for="userName" class="form-label">ชื่อผู้แจ้ง</label>
+        <input type="text" id="userName" class="form-control" readonly>
       </div>
-
-      <!-- ข้อมูลผู้ใช้ -->
-      <div class="row">
-        <div class="col-12 col-md-6 mb-3">
-          <label for="userName" class="form-label">ชื่อผู้ใช้</label>
-          <input type="text" id="userName" class="form-control" readonly>
-        </div>
-        <div class="col-12 col-md-6 mb-3">
-          <label for="userEmail" class="form-label">อีเมลผู้ใช้</label>
-          <input type="email" id="userEmail" class="form-control" readonly>
-        </div>
+      <div class="col-12 col-md-6 mb-3">
+        <label for="userEmail" class="form-label">อีเมล</label>
+        <input type="email" id="userEmail" class="form-control" readonly>
       </div>
+    </div>
 
-      <!-- เลือกกรณี -->
-      <div class="section-title">เลือกกรณีที่เกิดขึ้น</div>
+    <!-- ประเภทปัญหา -->
+    <div class="section-title">ลักษณะของผลการตรวจสอบ</div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="errType" id="type_fp" value="fp" required>
+      <label class="form-check-label" for="type_fp">
+        ระบบแจ้งว่าเว็บไซต์ไม่ปลอดภัย แต่จากการใช้งานจริงเว็บไซต์นี้ปลอดภัย
+      </label>
+    </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="radio" name="errType" id="type_fn" value="fn" required>
+      <label class="form-check-label" for="type_fn">
+        ระบบแจ้งว่าเว็บไซต์ปลอดภัย แต่จากการใช้งานจริงเว็บไซต์นี้มีความเสี่ยง
+      </label>
+    </div>
+
+    <!-- เหตุผล -->
+    <div class="section-title">สาเหตุที่พบ (สามารถเลือกได้มากกว่า 1 ข้อ)</div>
+
+    <!-- FP -->
+    <div id="fpSection" class="case-box">
+      <div class="case-header">กรณีระบบแจ้งเตือนเกินจริง</div>
+
+      <div class="fw-semibold mt-1 mb-1">ลักษณะของลิงก์เว็บไซต์</div>
       <div class="form-check mb-1">
-        <input class="form-check-input" type="radio" name="errType" id="type_fp" value="fp" required>
-        <label class="form-check-label" for="type_fp">✔️ แจ้งเตือนผิด — เว็บปลอดภัย แต่ระบบบอกว่า “เสี่ยง/ไม่ปลอดภัย”</label>
+        <input class="form-check-input" type="checkbox" id="fp_url_utm"
+          value="ลิงก์มีความยาวหรือมีพารามิเตอร์จำนวนมาก แต่เป็นเว็บไซต์ที่เชื่อถือได้">
+        <label class="form-check-label" for="fp_url_utm">
+          ลิงก์ยาวหรือมีพารามิเตอร์จำนวนมาก แต่เป็นเว็บไซต์ที่เชื่อถือได้
+        </label>
       </div>
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="radio" name="errType" id="type_fn" value="fn" required>
-        <label class="form-check-label" for="type_fn">❗ พลาดเตือน — เว็บ “เสี่ยง/ไม่ปลอดภัย” แต่ระบบบอกว่าปลอดภัย</label>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fp_url_short"
+          value="เป็นลิงก์ย่อ แต่ปลายทางเป็นเว็บไซต์ที่ปลอดภัย">
+        <label class="form-check-label" for="fp_url_short">
+          เป็นลิงก์ย่อ แต่ปลายทางปลอดภัย
+        </label>
       </div>
-
-      <!-- เหตุผล (แยกตามกรณี) -->
-      <div class="section-title">เลือกเหตุผล (ติ๊กได้หลายข้อ)</div>
-
-      <!-- FP Section -->
-      <div id="fpSection" class="case-box">
-        <div class="case-header">✔️ แจ้งเตือนผิด (เว็บปลอดภัย แต่ระบบบอกว่าเสี่ยง)</div>
-
-        <div class="fw-semibold mt-1 mb-1">ลักษณะ URL</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_url_utm"
-                 value="ลิงก์โฆษณาเลยยาว แต่เว็บปลายทางเชื่อถือได้">
-          <label class="form-check-label" for="fp_url_utm">🔗 ลิงก์โฆษณาเลยยาว แต่เว็บปลายทางเชื่อถือได้</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_url_short"
-                 value="เป็นลิงก์สั้น แต่ปลายทางปลอดภัย">
-          <label class="form-check-label" for="fp_url_short">🔗 เป็นลิงก์สั้น (เช่น bit.ly) แต่ปลายทางปลอดภัย</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_url_dashnum"
-                 value="โดเมนมีตัวเลข/ขีดกลาง แต่เป็นขององค์กรจริง">
-          <label class="form-check-label" for="fp_url_dashnum">🔗 โดเมนมีตัวเลข/ขีดกลาง แต่เป็นขององค์กรจริง</label>
-        </div>
-
-        <div class="fw-semibold mt-2 mb-1">ตัวตนเว็บไซต์/โดเมน</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_org_sub"
-                 value="เป็นซับโดเมนขององค์กรจริง">
-          <label class="form-check-label" for="fp_org_sub">🏢 เป็นซับโดเมนขององค์กรจริง</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_new_legit"
-                 value="โดเมนเพิ่งจด แต่เป็นของจริง">
-          <label class="form-check-label" for="fp_new_legit">🆕 โดเมนเพิ่งจด แต่เป็นของจริง</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_staging"
-                 value="เป็นเว็บทดสอบ/สเตจขององค์กร">
-          <label class="form-check-label" for="fp_staging">🧪 เป็นเว็บทดสอบ/สเตจขององค์กร</label>
-        </div>
-
-        <div class="fw-semibold mt-2 mb-1">พฤติกรรมหน้าเว็บ</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_redirect_sso"
-                 value="เด้งหลายครั้งเพราะต้องล็อกอิน (SSO/CDN)">
-          <label class="form-check-label" for="fp_redirect_sso">🔄 เด้งหลายครั้งเพราะต้องล็อกอิน (SSO/CDN)</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_proxy_cdn"
-                 value="ใช้ Proxy/CDN เลยเนื้อหามาจากโดเมนอื่น">
-          <label class="form-check-label" for="fp_proxy_cdn">🌐 ใช้ Proxy/CDN เลยเนื้อหามาจากโดเมนอื่น</label>
-        </div>
-
-        <div class="fw-semibold mt-2 mb-1">ความปลอดภัย/ใบรับรอง</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_ssl_wildcard"
-                 value="มี HTTPS แต่เป็นใบรับรองรวม (wildcard/SAN) ชื่อไม่ตรงทั้งหมด">
-          <label class="form-check-label" for="fp_ssl_wildcard">✅ มี HTTPS แต่เป็นใบรับรองรวม (wildcard/SAN) ชื่อไม่ตรงทั้งหมด</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_no_https_legacy"
-                 value="ไม่มี HTTPS เพราะเป็นระบบเก่าหรือเป็นไฟล์ที่ไม่เสี่ยง">
-          <label class="form-check-label" for="fp_no_https_legacy">⚠️ ไม่มี HTTPS เพราะเป็นระบบเก่าหรือเป็นไฟล์ที่ไม่เสี่ยง</label>
-        </div>
-
-        <div class="fw-semibold mt-2 mb-1">ไฟล์/ดาวน์โหลด</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fp_file_ok"
-                 value="มีไฟล์แนบ แต่เป็นไฟล์ทางการ/ปลอดภัย">
-          <label class="form-check-label" for="fp_file_ok">📂 มีไฟล์แนบ แต่เป็นไฟล์ทางการ/ปลอดภัย</label>
-        </div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fp_url_dashnum"
+          value="ชื่อเว็บไซต์มีตัวเลขหรือขีดกลาง แต่เป็นเว็บไซต์ขององค์กรจริง">
+        <label class="form-check-label" for="fp_url_dashnum">
+          ชื่อเว็บไซต์มีตัวเลขหรือขีดกลาง แต่เป็นเว็บไซต์จริง
+        </label>
       </div>
 
-      <!-- FN Section -->
-      <div id="fnSection" class="case-box">
-        <div class="case-header">❗ พลาดเตือน (เว็บเสี่ยง/ไม่ปลอดภัย แต่ระบบบอกว่าปลอดภัย)</div>
-
-        <div class="fw-semibold mt-1 mb-1">ลักษณะ URL/โดเมน</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_typosquat"
-                 value="ชื่อโดเมนเลียนแบบ/คล้ายแบรนด์ (typosquat)">
-          <label class="form-check-label" for="fn_typosquat">🚩 โดเมนเลียนแบบ/คล้ายแบรนด์ (ตัวสะกดเพี้ยน)</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_http"
-                 value="ใช้ HTTP ไม่ใช่ HTTPS">
-          <label class="form-check-label" for="fn_http">🔓 ใช้ HTTP ไม่ใช่ HTTPS</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_many_subdomains"
-                 value="มีซับโดเมนหลายชั้นและยาวผิดปกติ">
-          <label class="form-check-label" for="fn_many_subdomains">🧩 ซับโดเมนหลายชั้น/ยาวผิดปกติ</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_tld_in_path_sub"
-                 value="มี .com/.net โผล่ในซับโดเมนหรือใน path">
-          <label class="form-check-label" for="fn_tld_in_path_sub">🧷 มี “.com/.net” โผล่ในซับโดเมนหรือใน path</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_many_params"
-                 value="พารามิเตอร์ใน URL เยอะ/มั่วผิดปกติ">
-          <label class="form-check-label" for="fn_many_params">🧮 พารามิเตอร์เยอะ/มั่วผิดปกติ</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_at_symbol"
-                 value="มีสัญลักษณ์ @ ใน URL">
-          <label class="form-check-label" for="fn_at_symbol">@ มีสัญลักษณ์ @ ใน URL</label>
-        </div>
-
-        <div class="fw-semibold mt-2 mb-1">พฤติกรรม/เนื้อหา</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_fake_login"
-                 value="เด้งไปหน้าล็อกอินปลอม/คล้ายของจริง">
-          <label class="form-check-label" for="fn_fake_login">🎭 เด้งไปหน้าล็อกอินปลอม/คล้ายของจริง</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_asks_pw"
-                 value="หลอกขอรหัสผ่าน/ข้อมูลส่วนตัว/บัตร">
-          <label class="form-check-label" for="fn_asks_pw">🔑 หลอกขอรหัสผ่าน/ข้อมูลส่วนตัว/บัตร</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_shortener_hide"
-                 value="ใช้ลิงก์สั้นเพื่อซ่อนปลายทางจริง">
-          <label class="form-check-label" for="fn_shortener_hide">🕳️ ใช้ลิงก์สั้นเพื่อ “ซ่อน” ปลายทางจริง</label>
-        </div>
-
-        <div class="fw-semibold mt-2 mb-1">ความปลอดภัย/ไฟล์</div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_ssl_bad"
-                 value="ใบรับรองไม่ตรงชื่อ/หมดอายุ/เชื่อถือไม่ได้">
-          <label class="form-check-label" for="fn_ssl_bad">⚠️ ใบรับรองไม่ตรงชื่อ/หมดอายุ</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_file_exec"
-                 value="มีไฟล์ .exe/.zip หรือไฟล์เสี่ยงให้ดาวน์โหลด">
-          <label class="form-check-label" for="fn_file_exec">📦 มีไฟล์ .exe/.zip หรือไฟล์เสี่ยงให้ดาวน์โหลด</label>
-        </div>
-        <div class="form-check mb-1">
-          <input class="form-check-input" type="checkbox" id="fn_tld_risky"
-                 value="TLD เสี่ยง/ไม่คุ้น (เช่น .top, .xyz ฯลฯ)">
-          <label class="form-check-label" for="fn_tld_risky">🛰️ ใช้ TLD เสี่ยง/ไม่คุ้น (เช่น .top, .xyz)</label>
-        </div>
+      <div class="fw-semibold mt-2 mb-1">ความน่าเชื่อถือของเว็บไซต์</div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fp_org_sub"
+          value="เป็นเว็บไซต์ย่อยขององค์กรที่เชื่อถือได้">
+        <label class="form-check-label" for="fp_org_sub">
+          เป็นเว็บไซต์ย่อยขององค์กรที่เชื่อถือได้
+        </label>
+      </div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fp_new_legit"
+          value="เว็บไซต์เพิ่งเปิดใหม่ แต่เป็นของจริง">
+        <label class="form-check-label" for="fp_new_legit">
+          เว็บไซต์เพิ่งเปิดใหม่ แต่เป็นของจริง
+        </label>
       </div>
 
-      <!-- ข้อความเพิ่มเติม -->
-      <div class="section-title">อธิบายเพิ่มเติม (ถ้ามี)</div>
-      <textarea id="extraNote" class="form-control" rows="3"
-                placeholder="เช่น เป็นลิงก์แคมเปญของบริษัท / ผ่าน SSO ก่อนถึงหน้าเว็บจริง / พบข้อความหลอกขอรหัสผ่าน ฯลฯ"></textarea>
-      <div class="hint">* เลือกอย่างน้อย 1 เหตุผลใน “กรณีที่เลือก” หรือพิมพ์คำอธิบายเพิ่มเติม จะช่วยให้ทีมปรับปรุงโมเดลได้แม่นยำขึ้น</div>
-
-      <div class="d-flex justify-content-between mt-3">
-        <button type="submit" class="btn btn-primary">ยืนยัน</button>
-        <button type="button" class="close-btn" onclick="closePopup()">ปิด</button>
+      <div class="fw-semibold mt-2 mb-1">การทำงานของหน้าเว็บ</div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fp_redirect_sso"
+          value="มีการเปลี่ยนหน้าเว็บไซต์หลายครั้งเนื่องจากระบบเข้าสู่ระบบ">
+        <label class="form-check-label" for="fp_redirect_sso">
+          มีการเปลี่ยนหน้าเว็บไซต์หลายครั้งเนื่องจากการเข้าสู่ระบบ
+        </label>
       </div>
-    </form>
-  </div>
+    </div>
+
+    <!-- FN -->
+    <div id="fnSection" class="case-box">
+      <div class="case-header">กรณีระบบตรวจไม่พบความเสี่ยง</div>
+
+      <div class="fw-semibold mt-1 mb-1">ลักษณะเว็บไซต์ที่น่าสงสัย</div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fn_typosquat"
+          value="ชื่อเว็บไซต์คล้ายเว็บไซต์จริง อาจทำให้ผู้ใช้สับสน">
+        <label class="form-check-label" for="fn_typosquat">
+          ชื่อเว็บไซต์คล้ายของจริง อาจทำให้เข้าใจผิด
+        </label>
+      </div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fn_http"
+          value="เว็บไซต์ไม่ได้ใช้การเชื่อมต่อที่ปลอดภัย">
+        <label class="form-check-label" for="fn_http">
+          เว็บไซต์ไม่ได้ใช้การเชื่อมต่อที่ปลอดภัย
+        </label>
+      </div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fn_fake_login"
+          value="เว็บไซต์มีหน้าตาเหมือนหน้าเข้าสู่ระบบของจริง">
+        <label class="form-check-label" for="fn_fake_login">
+          เว็บไซต์มีหน้าตาเหมือนหน้าเข้าสู่ระบบของจริง
+        </label>
+      </div>
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="fn_asks_pw"
+          value="เว็บไซต์ขอข้อมูลส่วนตัวหรือรหัสผ่าน">
+        <label class="form-check-label" for="fn_asks_pw">
+          เว็บไซต์ขอข้อมูลส่วนตัวหรือรหัสผ่าน
+        </label>
+      </div>
+    </div>
+
+    <!-- ข้อความเพิ่มเติม -->
+    <div class="section-title">รายละเอียดเพิ่มเติม (ถ้ามี)</div>
+    <textarea id="extraNote" class="form-control" rows="3"
+      placeholder="เช่น เว็บไซต์มีพฤติกรรมแปลก มีข้อความหลอกลวง หรือขอข้อมูลผิดปกติ"></textarea>
+
+    <div class="hint">
+      ข้อมูลที่คุณให้จะช่วยให้ระบบปรับปรุงความแม่นยำในการตรวจสอบเว็บไซต์ได้ดียิ่งขึ้น
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+      <button type="submit" class="btn btn-primary">ส่งข้อมูล</button>
+      <button type="button" class="close-btn" onclick="closePopup()">ยกเลิก</button>
+    </div>
+  </form>
+</div>
+
 
   <script>
 
