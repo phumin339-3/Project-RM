@@ -410,6 +410,13 @@
               <input id="loginEmail" class="form-control mb-2" placeholder="Email">
               <input id="loginPassword" type="password" class="form-control mb-2" placeholder="Password">
 
+              <div class="text-end mb-2">
+                <button id="forgotPasswordBtn"
+                        class="btn btn-link p-0 small text-decoration-none">
+                  ลืมรหัสผ่าน?
+                </button>
+              </div>
+
               <button id="emailLoginBtn" class="btn btn-primary w-100 mb-2">
                 Login with Email
               </button>
@@ -446,13 +453,42 @@
             </div>
           </div>
 
+          
+
         </div>
       </div>
 
     </div> 
   </div>   
 </div>    
+        <!-- LOGIN MODAL END -->
 
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">รีเซ็ตรหัสผ่าน</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <p class="text-muted small">
+          กรอก Email ที่ใช้สมัครสมาชิก ระบบจะส่งลิงก์รีเซ็ตรหัสผ่านให้คุณ
+        </p>
+
+        <input id="resetEmail" class="form-control mb-3" placeholder="Email">
+
+        <button id="sendResetBtn" class="btn btn-primary w-100">
+          ส่งลิงก์รีเซ็ตรหัสผ่าน
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
         
 
   <div class="app container">
@@ -855,6 +891,17 @@ document
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   const loginBtn = document.getElementById("loginBtn");
   const googleLoginBtn = document.getElementById("googleLoginBtn");
   const emailLoginBtn = document.getElementById("emailLoginBtn");
@@ -864,18 +911,53 @@ document
   const loginPassword = document.getElementById("loginPassword");
   const regEmail = document.getElementById("regEmail");
   const regPassword = document.getElementById("regPassword");
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const resetModal = new bootstrap.Modal(
+    document.getElementById("resetPasswordModal")
+  );
 
+  forgotPasswordBtn?.addEventListener("click", () => {
+    resetModal.show();
+  });
+
+  const sendResetBtn = document.getElementById("sendResetBtn");
+const resetEmail = document.getElementById("resetEmail");
+
+sendResetBtn?.addEventListener("click", async () => {
+
+  const email = resetEmail.value.trim();
+
+  if (!email) {
+    alert("กรุณากรอก Email");
+    return;
+  }
+
+  try {
+
+    await sendPasswordResetEmail(auth, email);
+
+    alert("ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ Email แล้ว");
+
+    resetEmail.value = "";
+    resetModal.hide();
+
+  } catch (err) {
+
+    if (err.code === "auth/user-not-found") {
+      alert("ไม่พบบัญชีที่ใช้ Email นี้");
+    }
+    else if (err.code === "auth/invalid-email") {
+      alert("Email ไม่ถูกต้อง");
+    }
+    else {
+      alert("เกิดข้อผิดพลาด: " + err.message);
+    }
+
+  }
+
+});
+  
   
   /* ===== Firebase Config ===== */
   const firebaseConfig = {
@@ -938,11 +1020,32 @@ document.getElementById("disclaimerListBtn").onclick = () => {
   
   /* Email login */
   emailLoginBtn.onclick = async () => {
+
+  try {
+
     await signInWithEmailAndPassword(
       auth,
       loginEmail.value,
       loginPassword.value
     );
+
+  } catch (err) {
+
+    if (err.code === "auth/wrong-password") {
+      alert("รหัสผ่านไม่ถูกต้อง");
+    }
+    else if (err.code === "auth/user-not-found") {
+      alert("ไม่พบบัญชีนี้");
+    }
+    else if (err.code === "auth/invalid-email") {
+      alert("รูปแบบ Email ไม่ถูกต้อง");
+    }
+    else {
+      alert("Login ไม่สำเร็จ: " + err.message);
+    }
+
+  }
+
   };
 
   /* Register */
