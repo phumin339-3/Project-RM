@@ -12,21 +12,27 @@
     "webNavigation",
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
-    "notifications",
-    "webRequest",
-    "identity"
+    "notifications"
   ],
 
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+  "http://*/*",
+  "https://*/*"
+  ],
 
   "background": {
     "service_worker": "background.js"
   },
 
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon/icon-turnon16.png",
+      "48": "icon/icon-turnon48.png",
+      "128": "icon/icon-turnon128.png"
+    }
   },
-
+  
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },

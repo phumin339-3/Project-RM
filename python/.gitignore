@@ -1,7 +1,0 @@
-# Firebase service account
-serviceAccountKey.json
-python/serviceAccountKey.json
-
-# local logs
-python/result_log.json
-python/database/

@@ -1,85 +1,75 @@
-// feedback.js — ฟอร์มฟีดแบ็ก (ไม่บันทึกอัตโนมัติ; Export เฉพาะหมวดที่เลือก)
+// feedback.js — ฟอร์มฟีดแบ็ก (clean version, manual email only)
 
 (function () {
   const $ = (s) => document.querySelector(s);
 
-  const emailFallback = document.getElementById("emailFallback");
-  const manualEmail = document.getElementById("manualEmail");
+  // ===== elements =====
+  const emailFallback = $("#emailFallback");
+  const manualEmail = $("#manualEmail");
+  const allowEmail = $("#allowEmail");
 
+  const segNot = $("#segNot");
+  const segIs = $("#segIs");
+  const groupNot = $("#group-not");
+  const groupIs = $("#group-is");
 
-  // ---- Read query ----
+  // ===== read query =====
   const params = new URLSearchParams(location.search);
   const url = params.get("url") || "";
   const domain = params.get("domain") || (url ? safeHost(url) : "");
   const modelLabel = (params.get("model_label") || "-").toUpperCase();
 
-  // ---- Init header fields ----
+  // ===== init =====
   $("#url").value = url;
   $("#domain").value = domain;
   applyStatusPill(modelLabel);
 
-  // ---- Segments ----
-  const segNot = $("#segNot");
-  const segIs  = $("#segIs");
-  const groupNot = $("#group-not");
-  const groupIs  = $("#group-is");
-
-  const allowEmail = document.getElementById("allowEmail");
-  const emailPreview = document.getElementById("emailPreview");
-  const emailText = document.getElementById("emailText");
-
+  // ===== email toggle =====
   allowEmail.addEventListener("change", () => {
-    if (!allowEmail.checked) {
-      emailPreview.style.display = "none";
+    if (allowEmail.checked) {
+      emailFallback.style.display = "block";
+    } else {
       emailFallback.style.display = "none";
       manualEmail.value = "";
-      return;
     }
-  
-    chrome.runtime.sendMessage(
-      { action: "get_user_email_preview" },
-      (res) => {
-        if (res?.email) {
-          emailText.textContent = maskEmail(res.email);
-          emailPreview.style.display = "";
-          emailFallback.style.display = "none";
-        } else {
-          emailText.textContent = "(ไม่พบอีเมลจาก Google)";
-          emailPreview.style.display = "";
-          emailFallback.style.display = "";
-        }
-      }
-    );
   });
-  
 
-
-  let currentMode = "not_phishing"; // default
+  // ===== segment switch =====
+  let currentMode = "not_phishing";
 
   segNot.addEventListener("click", () => setMode("not_phishing"));
-  segIs.addEventListener("click",  () => setMode("is_phishing"));
+  segIs.addEventListener("click", () => setMode("is_phishing"));
+
   setMode(currentMode);
 
-  // ---- Back / Export ----
+  // ===== back button =====
   $("#btnBack").addEventListener("click", () => {
     if (history.length > 1) history.back();
     else window.close();
   });
 
+  // ===== submit =====
   $("#btnExport").addEventListener("click", () => {
+    // optional email validation
+    if (
+      allowEmail.checked &&
+      manualEmail.value &&
+      !manualEmail.value.includes("@")
+    ) {
+      alert("กรุณากรอกอีเมลให้ถูกต้อง");
+      return;
+    }
+
     const payload = buildPayload();
-  
-    const email =
-      emailText.textContent && !emailText.textContent.includes("ไม่พบ")
-        ? emailText.textContent
-        : manualEmail.value || "";
-  
+
+    const email = allowEmail.checked ? (manualEmail.value || "") : "";
+
     chrome.runtime.sendMessage(
       {
         action: "feedback_add_and_send",
         ...payload,
         allow_email: allowEmail.checked,
-        email: email
+        email: email,
       },
       (res) => {
         if (res?.ok) {
@@ -92,48 +82,53 @@
       }
     );
   });
-  
-  
-  
-  function maskEmail(email) {
-    if (!email || !email.includes("@")) return "";
-    const [name, domain] = email.split("@");
-    return name.slice(0, 3) + "***@" + domain;
-  }
-  
+
   // ===== helpers =====
-  function safeHost(u){
-    try{ return new URL(u).hostname; }catch{ return ""; }
+
+  function safeHost(u) {
+    try {
+      return new URL(u).hostname;
+    } catch {
+      return "";
+    }
   }
 
-  function applyStatusPill(label){
+  function applyStatusPill(label) {
     const pill = $("#statusPill");
     pill.textContent = label;
-    pill.className = "pill"; // reset
+    pill.className = "pill";
+
     if (label === "SAFE") pill.classList.add("pill-good");
     else if (label === "SUSPECT") pill.classList.add("pill-warn");
     else if (label === "UNSAFE") pill.classList.add("pill-bad");
   }
 
-  function setMode(mode){
+  function setMode(mode) {
     currentMode = mode;
-    if (mode === "not_phishing"){
-      segNot.classList.add("active"); segIs.classList.remove("active");
-      groupNot.style.display = "";   groupIs.style.display = "none";
-    }else{
-      segIs.classList.add("active");  segNot.classList.remove("active");
-      groupIs.style.display = "";     groupNot.style.display = "none";
+
+    if (mode === "not_phishing") {
+      segNot.classList.add("active");
+      segIs.classList.remove("active");
+      groupNot.style.display = "";
+      groupIs.style.display = "none";
+    } else {
+      segIs.classList.add("active");
+      segNot.classList.remove("active");
+      groupIs.style.display = "";
+      groupNot.style.display = "none";
     }
   }
 
-  function getFlagsFrom(container){
-    return Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
-      .map(ch => ch.value);
+  function getFlagsFrom(container) {
+    return Array.from(
+      container.querySelectorAll('input[type="checkbox"]:checked')
+    ).map((ch) => ch.value);
   }
 
-  function buildPayload(){
+  function buildPayload() {
     const ts = new Date().toISOString();
-    if (currentMode === "not_phishing"){
+
+    if (currentMode === "not_phishing") {
       return {
         url,
         domain,
@@ -141,9 +136,9 @@
         user_claim: "not_phishing",
         flags: getFlagsFrom(groupNot),
         note: $("#note").value || "",
-        ts
+        ts,
       };
-    }else{
+    } else {
       return {
         url,
         domain,
@@ -151,7 +146,7 @@
         user_claim: "is_phishing",
         flags: getFlagsFrom(groupIs),
         note: $("#note").value || "",
-        ts
+        ts,
       };
     }
   }

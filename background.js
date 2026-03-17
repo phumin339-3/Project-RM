@@ -34,6 +34,26 @@ let offscreenReadyWaiter = null;
 const ENABLED_KEY = "ext_enabled";
 let EXT_ENABLED = true; // cached toggle state
 
+function updateIcon(enabled) {
+  if (enabled) {
+    chrome.action.setIcon({
+      path: {
+        "16": "icon/icon-turnon16.png",
+        "48": "icon/icon-turnon48.png",
+        "128": "icon/icon-turnon128.png"
+      }
+    });
+  } else {
+    chrome.action.setIcon({
+      path: {
+        "16": "icon/icon-turnoff16.png",
+        "48": "icon/icon-turnoff48.png",
+        "128": "icon/icon-turnoff128.png"
+      }
+    });
+  }
+}
+
 function updateBadgeForEnabled(on) {
   if (on) {
     chrome.action.setBadgeText({ text: "" });
@@ -43,18 +63,22 @@ function updateBadgeForEnabled(on) {
     chrome.action.setBadgeBackgroundColor?.({ color: "#9aa0a6" });
   }
 }
+
 async function loadEnabled() {
   const obj = await chrome.storage.sync.get(ENABLED_KEY);
-  EXT_ENABLED = obj[ENABLED_KEY] !== false; // default true
+  EXT_ENABLED = obj[ENABLED_KEY] !== false;
+
   updateBadgeForEnabled(EXT_ENABLED);
-  return EXT_ENABLED;
+  updateIcon(EXT_ENABLED);
 }
 
 async function setEnabled(on) {
   EXT_ENABLED = !!on;
+
   await chrome.storage.sync.set({ [ENABLED_KEY]: EXT_ENABLED });
+
   updateBadgeForEnabled(EXT_ENABLED);
-  chrome.runtime.sendMessage({ action: "enabled_changed", enabled: EXT_ENABLED }).catch(()=>{});
+  updateIcon(EXT_ENABLED);
 }
 
 
@@ -258,15 +282,6 @@ function shouldAutoCheck(url) {
 }
 function escapeRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
-function getUserEmail() {
-  return new Promise((resolve) => {
-    chrome.identity.getProfileUserInfo((info) => {
-      resolve(info?.email || null);
-    });
-  });
-}
-
-
 function toFirestoreDoc(data) {
   const fields = {};
 
@@ -418,12 +433,14 @@ function pushTabHistory(tabId, url) {
 
 chrome.webNavigation.onCommitted.addListener((details) => {
   try {
-    if (details.frameId !== 0) return; 
-    if (details.url) {
-      pushTabHistory(details.tabId, details.url);
-      // ✅ ตรวจทุกครั้งที่ commit
-      autoCheckTabUrl(details.tabId, details.url);
-    }
+    if (details.frameId !== 0) return;
+    if (!details.url) return;
+
+    if (shouldSkipUrl(details.url)) return;  
+
+    pushTabHistory(details.tabId, details.url);
+    autoCheckTabUrl(details.tabId, details.url);
+
   } catch {}
 });
 
@@ -433,6 +450,7 @@ async function autoCheckTabUrl(tabId, url) {
   try {
     if (!EXT_ENABLED) return;
     if (!url) return;
+    if (shouldSkipUrl(url)) return;
 
     // ไม่ตรวจหน้าเตือนของเราเอง
     const warnPrefix = chrome.runtime.getURL("warning.html");
@@ -492,6 +510,7 @@ if (AUTO_CHECK) {
       if (!EXT_ENABLED) return;
 
       const url = tab?.url || "";
+      if (shouldSkipUrl(url)) return;
       autoCheckTabUrl(tabId, url);
     } catch (e) {
       console.warn("auto-check error:", e);
@@ -499,32 +518,27 @@ if (AUTO_CHECK) {
   });
 }
 
-/***** ✅ REDIRECT LOGGING: บันทึกลิงก์ต้นทางก่อน redirect *****/
-// ต้องมี permission: "webRequest"
-chrome.webRequest.onBeforeRedirect.addListener(async (details) => {
+const lastUrlMap = new Map();
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   try {
-    if (details.frameId !== 0) return;
-    if (!EXT_ENABLED) return;
+    if (!changeInfo.url) return;
 
-    const fromUrl = details.url;
-    try { if (!/^https?:$/.test(new URL(fromUrl).protocol)) return; } catch { return; }
-    if (!shouldAutoCheck(fromUrl)) return; // throttle
-    lastCheckedAt.set(fromUrl, Date.now());
+    if (shouldSkipUrl(changeInfo.url)) return;
 
-    const { prediction, unsafe_probability, reason } = await checkUrlSafety(fromUrl);
-    const item = {
-      url: fromUrl,
-      domain: safeDomain(fromUrl),
-      prob: Number(unsafe_probability || 0),
-      prediction: Number(prediction || 0),
-      ts: nowISO(),
-      source: reason ? `redirect:from:${reason}` : "redirect:from"
-    };
-    await appendHistory(item);
+    const prev = lastUrlMap.get(tabId);
+
+    if (prev && prev !== changeInfo.url) {
+      // 🔥 redirect detected
+      autoCheckTabUrl(tabId, prev);   // เช็คตัวต้นทาง
+    }
+
+    lastUrlMap.set(tabId, changeInfo.url);
+
   } catch (e) {
-    console.warn("onBeforeRedirect error:", e);
+    console.warn("redirect detect error", e);
   }
-}, { urls: ["<all_urls>"], types: ["main_frame"] });
+});
 
 /***** ✅ SPA / fragment / soft-redirect hooks *****/
 // SPA (history.pushState / replaceState)
@@ -547,6 +561,7 @@ chrome.webNavigation.onReferenceFragmentUpdated.addListener((details) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   try {
     if (typeof changeInfo?.url === "string" && changeInfo.url) {
+      if (shouldSkipUrl(changeInfo.url)) return;
       autoCheckTabUrl(tabId, changeInfo.url);
     }
   } catch (e) { console.warn("tabs.onUpdated(url) err", e); }
@@ -630,6 +645,20 @@ async function smartBack(tabId, maxSteps = 15) {
   return { ok:false, error:"exhausted", steps };
 }
 
+function shouldSkipUrl(url) {
+  if (!url) return true;
+
+  return (
+    url.startsWith("chrome://") ||
+    url.startsWith("edge://") ||
+    url.startsWith("about:") ||
+    url.startsWith("chrome-extension://") ||
+    url.startsWith("moz-extension://") ||
+    url.includes("ntp.msn.com") ||
+    url.includes("newtab") ||
+    url.includes("_generated_background_page")
+  );
+}
 /***** API (popup + warning + allowlist user + feedback + enabled) *****/
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // History
@@ -922,18 +951,6 @@ if (msg?.action === "feedback_send_firestore") {
   })();
   return true;
 }
-if (msg?.action === "get_user_email_preview") {
-  chrome.identity.getProfileUserInfo((info) => {
-    console.log("👤 chrome identity info:", info);
-
-    const email = info && typeof info.email === "string" && info.email.length
-      ? info.email
-      : null;
-
-    sendResponse({ email });
-  });
-  return true;
-}
 
 // 5) เก็บ local + ส่ง Firestore พร้อมกัน (แนะนำให้ใช้ตัวนี้)
 if (msg?.action === "feedback_add_and_send") {
@@ -947,7 +964,7 @@ if (msg?.action === "feedback_add_and_send") {
         user_claim: msg.user_claim || "",
         flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
         note: String(msg.note || "").slice(0, 2000),
-        email: msg.allow_email ? (msg.email || "") : ""
+        email: msg.allow_email ? String(msg.email || "").slice(0, 200) : ""
       };
       
 
