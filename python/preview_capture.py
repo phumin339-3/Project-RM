@@ -6,7 +6,6 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,13 +16,12 @@ def _build_options(width: int, height: int, headless_new: bool = True) -> Option
     chrome_options = Options()
 
     # ===== Headless =====
-    # บางเครื่อง/บางเว็บ headless=new มีปัญหา → เราจะมี fallback ไป headless แบบเก่า
     if headless_new:
         chrome_options.add_argument("--headless=new")
     else:
         chrome_options.add_argument("--headless")
 
-    # ===== จำเป็นมาก (กัน crash / server) =====
+    # ===== สำคัญมาก (สำหรับ Docker / Render) =====
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
@@ -33,47 +31,55 @@ def _build_options(width: int, height: int, headless_new: bool = True) -> Option
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-infobars")
 
-    # ===== ป้องกันบางเว็บ detect automation (ช่วยได้บางเว็บ) =====
+    # ===== กัน detect automation =====
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
-    # ===== ตั้ง viewport =====
+    # ===== viewport =====
     chrome_options.add_argument(f"--window-size={width},{height}")
 
-    # ===== user-agent จริง (ช่วยเว็บที่บล็อก headless บางส่วน) =====
+    # ===== user agent =====
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/120.0.0.0 Safari/537.36"
     )
 
-    # ===== กันปัญหา SSL/https บางเคส =====
+    # ===== SSL =====
     chrome_options.add_argument("--ignore-certificate-errors")
     chrome_options.add_argument("--allow-insecure-localhost")
+
+    # ===== บอก path chromium =====
+    chrome_options.binary_location = os.environ.get("CHROME_BIN", "/usr/bin/chromium")
 
     return chrome_options
 
 
 def _create_driver(width: int, height: int):
     """
-    สร้าง driver โดยพยายามใช้ headless=new ก่อน
-    ถ้า fail ให้ fallback ไป --headless (แบบเก่า)
+    ใช้ chromedriver จาก Docker (/usr/bin/chromedriver)
     """
     last_err = None
+
     for headless_new in (True, False):
         try:
             options = _build_options(width, height, headless_new=headless_new)
+
+            service = Service(
+                os.environ.get("CHROMEDRIVER_PATH", "/usr/bin/chromedriver")
+            )
+
             driver = webdriver.Chrome(
-                service=Service(ChromeDriverManager().install()),
+                service=service,
                 options=options
             )
 
-            # ลดการ detect เพิ่ม (ไม่รับประกัน 100% แต่ช่วยได้)
+            # กัน detect webdriver
             try:
                 driver.execute_cdp_cmd(
                     "Page.addScriptToEvaluateOnNewDocument",
                     {
                         "source": """
-                            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+                        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
                         """
                     }
                 )
@@ -81,6 +87,7 @@ def _create_driver(width: int, height: int):
                 pass
 
             return driver
+
         except Exception as e:
             last_err = e
 
@@ -97,12 +104,7 @@ def capture_preview(
     page_load_timeout: int = 25,
 ):
     """
-    เปิดเว็บไซต์ด้วย headless Chrome แล้วถ่าย screenshot "หน้าแรก" หลังเข้า URL นั้น
-    return dict:
-    {
-        "path": ".../preview.png",
-        "base64": "iVBORw0KGgoAAA..."
-    }
+    เปิดเว็บไซต์แล้ว capture screenshot
     """
 
     os.makedirs(out_dir, exist_ok=True)
@@ -114,24 +116,23 @@ def capture_preview(
         driver.set_page_load_timeout(page_load_timeout)
         driver.get(url)
 
-        # ✅ 1) รอให้มี body จริงก่อน (กันหน้า blank)
+        # ✅ รอ body
         WebDriverWait(driver, max(5, wait_sec)).until(
             EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
 
-        # ✅ 2) รอ document.readyState = complete (กันเว็บโหลดไม่เสร็จ)
+        # ✅ รอโหลด complete
         try:
             WebDriverWait(driver, max(8, wait_sec + 5)).until(
                 lambda d: d.execute_script("return document.readyState") == "complete"
             )
         except Exception:
-            # บางเว็บไม่ยอม complete (ยิง request ต่อเนื่อง) → ไม่ต้อง fail
             pass
 
-        # ✅ 3) รอเพิ่มนิดนึง ให้รูป/JS render (SPA/React/Angular)
+        # ✅ รอ render JS
         time.sleep(wait_sec)
 
-        # ✅ 4) ถ่าย screenshot
+        # ✅ screenshot
         driver.save_screenshot(out_path)
 
     finally:
@@ -140,7 +141,7 @@ def capture_preview(
         except Exception:
             pass
 
-    # ===== แปลงเป็น base64 =====
+    # ===== base64 =====
     with open(out_path, "rb") as f:
         img_bytes = f.read()
         img_base64 = base64.b64encode(img_bytes).decode("utf-8")
