@@ -1,5 +1,6 @@
 # app.py
 import os, sys, json, traceback
+import json
 from datetime import datetime
 from urllib.parse import urlparse
 
@@ -23,13 +24,20 @@ app_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(app_dir, ".."))
 template_dir = os.path.join(project_root, "templates")
 
-SERVICE_ACCOUNT_PATH = os.path.join(app_dir, "serviceAccountKey.json")
+if not firebase_admin._apps:
+    try:
+        cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
-if os.path.exists(SERVICE_ACCOUNT_PATH) and not firebase_admin._apps:
-    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
-    firebase_admin.initialize_app(cred)
-else:
-    print("[WARN] Firebase not initialized (no serviceAccountKey.json)")
+        if cred_json:
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            print("[FIREBASE] initialized via ENV")
+        else:
+            print("[WARN] No Firebase credentials in ENV")
+
+    except Exception as e:
+        print("[FIREBASE ERROR]", e)
 
 db = None
 if firebase_admin._apps:

@@ -40,5 +40,5 @@ treeinterpreter==0.2.3
 # ===============================
 # Preview Screenshot
 # ===============================
-selenium==4.35.0
-webdriver-manager==4.0.2
+#selenium==4.35.0
+#webdriver-manager==4.0.2
