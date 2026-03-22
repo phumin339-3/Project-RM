@@ -1,28 +1,43 @@
-FROM python:3.10-slim
+# ใช้ base image ที่ใหม่และปลอดภัยขึ้น
+FROM python:3.10-slim-bookworm
 
-# ติดตั้งเครื่องมือพื้นฐาน + chromium + chromedriver
-RUN apt-get update && apt-get install -y \
+# ปิด buffer log (ดีสำหรับ Render)
+ENV PYTHONUNBUFFERED=1
+
+# ติดตั้ง system dependencies (จำเป็น + cleanup)
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     build-essential \
-    git \
     curl \
+    git \
     chromium \
     chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
+# ตั้ง working directory
 WORKDIR /app
 
-# อัปเกรด pip และติดตั้ง dependencies
+# copy requirements ก่อน (ใช้ cache ได้เร็วขึ้น)
 COPY requirements.txt .
+
+# install python dependencies
 RUN python -m pip install --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt \
- && pip install scikit-learn==1.6.1   # ✅ lock version ให้ตรงกับตอน train
+ && pip install scikit-learn==1.6.1
 
-# คัดลอกโค้ดเข้าอิมเมจ
+# copy project ทั้งหมด
 COPY . .
 
-# สร้าง user ที่ไม่ใช่ root และรันด้วย user นี้
+# ตั้งค่า environment สำหรับ chromium (ถ้าใช้)
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
+
+# สร้าง user ไม่ใช้ root
 RUN useradd -m sandbox
 USER sandbox
 
-EXPOSE 5000
+# Render จะ inject PORT มาให้
+ENV PORT=10000
+EXPOSE 10000
+
+# run app
 CMD ["python", "python/app.py"]

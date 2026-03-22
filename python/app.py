@@ -25,11 +25,15 @@ template_dir = os.path.join(project_root, "templates")
 
 SERVICE_ACCOUNT_PATH = os.path.join(app_dir, "serviceAccountKey.json")
 
-if not firebase_admin._apps:
+if os.path.exists(SERVICE_ACCOUNT_PATH) and not firebase_admin._apps:
     cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
     firebase_admin.initialize_app(cred)
+else:
+    print("[WARN] Firebase not initialized (no serviceAccountKey.json)")
 
-db = firestore.client()
+db = None
+if firebase_admin._apps:
+    db = firestore.client()
 
 def save_disclaimer_firestore(uid: str, record: dict):
     ref = (
@@ -573,7 +577,7 @@ def check_url():
 
         uid = get_uid_from_request()
         doc_id = None
-        if uid:
+        if uid and db:
             doc_id = save_history_firestore(uid, record)
 
         # 9) Response
@@ -603,8 +607,8 @@ def disclaimer_popup():
 def save_disclaimer():
     try:
         uid = get_uid_from_request()
-        if not uid:
-            return jsonify({"ok": False, "error": "Unauthorized"}), 401
+        if not uid or not db:
+            return jsonify({"error": "Unauthorized"}), 401
 
         data = request.get_json()
 
@@ -627,7 +631,7 @@ def profile_page():
 def get_history():
     try:
         uid = get_uid_from_request()
-        if not uid:
+        if not uid or not db:
             return jsonify({"error": "Unauthorized"}), 401
 
         docs = (
@@ -664,7 +668,7 @@ def disclaimer_page():
 def get_disclaimers():
     try:
         uid = get_uid_from_request()
-        if not uid:
+        if not uid or not db:
             return jsonify({"error": "Unauthorized"}), 401
 
         docs = (
@@ -689,7 +693,7 @@ def get_disclaimers():
 def get_all_disclaimers():
     try:
         uid = get_uid_from_request()
-        if not uid:
+        if not uid or not db:
             return jsonify({"error": "Unauthorized"}), 401
 
         results = []
@@ -715,4 +719,7 @@ def get_all_disclaimers():
 if __name__ == "__main__":
     print("📂 template_dir:", template_dir)
     print("📦 model_path:", model_path)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+
+    port = int(os.environ.get("PORT", 5000))
+
+    app.run(host="0.0.0.0", port=port, debug=False)
