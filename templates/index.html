@@ -1395,10 +1395,11 @@
 
         reasonsList.innerHTML = "";
         if(Array.isArray(data.reasons) && data.reasons.length){
-          data.reasons.forEach(r=>{
-            const contrib = (typeof r.contribution==="number") ? r.contribution.toFixed(3) : r.contribution;
-            const text = r.explanation ? `${r.explanation} (contrib: ${contrib})`
-                                      : `${r.label || r.feature}: ${r.value} (contrib: ${contrib})`;
+          data.reasons.forEach(r => {
+            const text = r.explanation
+              ? r.explanation
+              : `${r.label || r.feature}: ${r.value}`;
+
             const li = document.createElement("li");
             li.textContent = text;
             reasonsList.appendChild(li);

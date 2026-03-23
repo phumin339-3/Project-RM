@@ -137,46 +137,45 @@ def normalize_url(u: str) -> str:
 
 # ---------------- HUMAN READABLE ----------------
 HUMAN_READABLE = {
-    "length_url": "ความยาวรวมของ URL",
-    "length_hostname": "ความยาวชื่อโดเมน",
-    "ip": "ใช้ตัวเลขเป็น IP แทนโดเมน",
-    "punycode": "โดเมนใช้ Punycode (xn--)",
-    "ratio_digits_url": "จำนวนตัวเลขที่ปรากฏใน URL",
-    "ratio_digits_host": "จำนวนตัวเลขที่ปรากฏในชื่อโดเมน",
-    "nb_subdomains": "จำนวน subdomain ที่อยู่หน้าชื่อโดเมนหลัก",
-    "tld_in_path": "มี TLD (เช่น .com) ไปโผล่ใน path",
-    "tld_in_subdomain": "มี TLD ไปโผล่ใน subdomain",
-    "random_domain": "ชื่อโดเมนมีลักษณะสุ่ม/ใส่ตัวเลข",
-    "shortening_service": "เป็น URL แบบย่อ (bit.ly ฯลฯ)",
-    "path_extension": "ไฟล์แนบเสี่ยง (.exe, .zip, .php ฯลฯ)",
-    "prefix_suffix": "ชื่อโดเมนมีขีดกลาง (-)",
-    "phish_hints": "มีคำที่น่าสงสัย (login, verify, account ฯลฯ)",
-    "url_entropy": "ความซับซ้อนของ URL",
-    "uses_https": "ใช้ HTTPS (เข้ารหัส)",
-    "is_http": "ใช้ HTTP ธรรมดา (ไม่เข้ารหัส)",
-    "num_query_params": "จำนวน query parameters",
-    "has_at_symbol": "มีสัญลักษณ์ @ ใน URL",
-    "ssl_valid": "ใบรับรอง SSL ใช้งานได้",
-    "cert_days_left": "จำนวนวันก่อน SSL หมดอายุ",
-    "san_count": "จำนวนชื่อโดเมนในใบรับรอง SSL (SAN)",
-    "cert_cn_matches_domain": "ชื่อโดเมนตรงกับข้อมูลในใบรับรอง SSL",
-    "domain_age_days": "อายุโดเมน (วัน)",
-    "tld_risk": "ความเสี่ยงของ TLD",
-    "days_since_update": "จำนวนวันตั้งแต่ update ล่าสุด",
-    "has_whois_privacy": "ปิดบังข้อมูล WHOIS",
-    "redirect_chain_len": "จำนวนครั้งที่มีการ redirect",
-    "final_domain_differs": "redirect ไปโดเมนอื่น",
-    "has_security_headers": "มี Security Headers",
-    "typosquat_candidate": "ชื่อคล้ายโดเมนดัง (typosquat)",
-    "typosquat_score_max": "ความคล้ายกับชื่อโดเมนน่าเชื่อถือ (สูงสุด)",
-    "typosquat_score_mean": "ความคล้ายกับชื่อโดเมนน่าเชื่อถือ (เฉลี่ย)",
-    "typosquat_distance": "ระยะห่างชื่อโดเมนกับของจริง",
-    # engineered
-    "url_length_ratio": "ความยาว URL เทียบกับความยาวโดเมน",
-    "digit_ratio_diff": "ความต่างปริมาณตัวเลขระหว่าง URL และโดเมน",
-    "domain_age_lt_90d": "อายุโดเมนน้อยกว่า 90 วัน",
-    "ssl_invalid_or_short": "SSL ไม่พร้อมใช้งาน/จะหมดอายุในระยะสั้น",
-    "redirect_and_domain_diff": "มี redirect และปลายทางเป็นโดเมนอื่น",
+    "length_url": "ลิงก์มีความยาวมากผิดปกติ",
+    "length_hostname": "ชื่อเว็บไซต์ยาวผิดปกติ",
+    "ip": "ใช้ตัวเลขแทนชื่อเว็บไซต์",
+    "punycode": "ชื่อเว็บไซต์มีรูปแบบผิดปกติ",
+    "ratio_digits_url": "ลิงก์มีตัวเลขจำนวนมาก",
+    "ratio_digits_host": "ชื่อเว็บไซต์มีตัวเลขจำนวนมาก",
+    "nb_subdomains": "ชื่อเว็บไซต์มีส่วนย่อยหลายชั้น",
+    "tld_in_path": "ลิงก์มีรูปแบบชื่อโดเมนแทรกอยู่ในส่วนท้าย",
+    "tld_in_subdomain": "ชื่อเว็บไซต์มีรูปแบบแปลกในส่วนย่อย",
+    "random_domain": "ชื่อเว็บไซต์ดูสุ่มหรือไม่น่าเชื่อถือ",
+    "shortening_service": "เป็นลิงก์ย่อ",
+    "path_extension": "ลิงก์อาจพาไปยังไฟล์ที่ควรระวัง",
+    "prefix_suffix": "ชื่อเว็บไซต์มีเครื่องหมายขีดกลาง",
+    "phish_hints": "มีคำที่มักพบในเว็บหลอกลวง",
+    "url_entropy": "ลิงก์มีรูปแบบซับซ้อนผิดปกติ",
+    "uses_https": "มีการเชื่อมต่อแบบปลอดภัย",
+    "is_http": "ไม่มีการเชื่อมต่อแบบปลอดภัย",
+    "num_query_params": "ลิงก์มีข้อมูลต่อท้ายจำนวนมาก",
+    "has_at_symbol": "ลิงก์มีเครื่องหมาย @",
+    "ssl_valid": "สามารถยืนยันความปลอดภัยของเว็บไซต์ได้",
+    "cert_days_left": "อายุใบรับรองความปลอดภัยที่เหลืออยู่",
+    "san_count": "ใบรับรองครอบคลุมหลายชื่อเว็บไซต์",
+    "cert_cn_matches_domain": "ชื่อเว็บไซต์ตรงกับข้อมูลความปลอดภัย",
+    "domain_age_days": "เว็บไซต์นี้มีอายุการใช้งาน",
+    "tld_risk": "นามสกุลเว็บไซต์มีความเสี่ยง",
+    "days_since_update": "ข้อมูลโดเมนไม่ได้อัปเดตมานาน",
+    "has_whois_privacy": "ข้อมูลเจ้าของโดเมนถูกปกปิด",
+    "redirect_chain_len": "ลิงก์นี้พาไปหลายต่อ",
+    "final_domain_differs": "ปลายทางเป็นอีกเว็บไซต์หนึ่ง",
+    "has_security_headers": "เว็บไซต์มีการตั้งค่าความปลอดภัยเพิ่มเติม",
+    "typosquat_candidate": "ชื่อเว็บไซต์คล้ายเว็บที่คนรู้จัก",
+    "typosquat_score_max": "ความคล้ายกับชื่อเว็บไซต์ที่น่าเชื่อถือ",
+    "typosquat_score_mean": "ความคล้ายโดยรวมกับชื่อเว็บไซต์ที่น่าเชื่อถือ",
+    "typosquat_distance": "ชื่อเว็บไซต์ต่างจากเว็บจริงเพียงเล็กน้อย",
+    "url_length_ratio": "ลิงก์ยาวเกินเมื่อเทียบกับชื่อเว็บไซต์",
+    "digit_ratio_diff": "จำนวนตัวเลขในลิงก์ดูผิดปกติ",
+    "domain_age_lt_90d": "เว็บไซต์นี้เพิ่งถูกสร้างไม่นาน",
+    "ssl_invalid_or_short": "ความปลอดภัยของเว็บไซต์อาจมีปัญหา",
+    "redirect_and_domain_diff": "ลิงก์พาไปยังอีกเว็บไซต์หนึ่ง",
 }
 
 BOOL_FEATS = {
@@ -220,18 +219,161 @@ def friendly_value(feat, v):
 
 def make_explanation(feat_key, label, value_str, c):
     neg = c < 0
+
     if feat_key == "domain_age_days":
-        return f"โดเมนเปิดใช้งานมานาน ({value_str} วัน)" if neg else f"อายุโดเมนยังใหม่ ({value_str} วัน)"
-    if feat_key == "ssl_valid":
-        return "พบใบรับรอง SSL ที่ใช้งานได้" if neg else "ไม่พบ/ไม่สามารถยืนยันใบรับรอง SSL"
-    if feat_key == "cert_days_left":
-        return f"ใบรับรอง SSL ยังมีอายุ {value_str} วัน" if neg else f"ใบรับรอง SSL ใกล้หมดอายุ ({value_str} วัน)"
+        return (
+            f"เว็บไซต์นี้เปิดใช้งานมานานพอสมควร ({value_str} วัน)"
+            if neg else
+            f"เว็บไซต์นี้เพิ่งเปิดใช้งานไม่นาน ({value_str} วัน)"
+        )
+
+    if feat_key == "days_since_update":
+        return (
+            "ข้อมูลโดเมนมีประวัติใช้งานต่อเนื่อง"
+            if neg else
+            "ข้อมูลโดเมนไม่ได้อัปเดตมานาน"
+        )
+
+    if feat_key == "length_hostname":
+        return (
+            "ชื่อเว็บไซต์มีความยาวอยู่ในเกณฑ์ปกติ"
+            if neg else
+            "ชื่อเว็บไซต์ยาวผิดปกติ"
+        )
+
+    if feat_key == "url_entropy":
+        return (
+            "ลิงก์มีรูปแบบค่อนข้างปกติ"
+            if neg else
+            "ลิงก์มีรูปแบบซับซ้อนผิดปกติ"
+        )
+
     if feat_key == "san_count":
-        return f"ใบรับรอง SSL ครอบคลุมหลายโดเมน ({value_str} รายการ)" if neg else f"ใบรับรอง SSL ครอบคลุมน้อย ({value_str} รายการ)"
+        return (
+            "ใบรับรองครอบคลุมชื่อเว็บไซต์ตามปกติ"
+            if neg else
+            f"ใบรับรองครอบคลุมหลายชื่อเว็บไซต์ ({value_str} รายการ)"
+        )
+
+    if feat_key == "ssl_valid":
+        return (
+            "เว็บไซต์นี้มีการเชื่อมต่อที่ปลอดภัย"
+            if neg else
+            "ไม่สามารถยืนยันการเชื่อมต่อที่ปลอดภัยได้"
+        )
+
+    if feat_key == "cert_days_left":
+        return (
+            f"อายุใบรับรองความปลอดภัยที่เหลืออยู่: {value_str}"
+            if neg else
+            f"ใบรับรองความปลอดภัยใกล้หมดอายุ ({value_str} วัน)"
+        )
+
     if feat_key == "cert_cn_matches_domain":
-        return "ชื่อโดเมนสอดคล้องกับใบรับรอง SSL" if value_str == "ตรง" else "ชื่อโดเมนไม่ตรงกับใบรับรอง SSL"
+        return (
+            "ชื่อเว็บไซต์ตรงกับข้อมูลในใบรับรองความปลอดภัย"
+            if value_str == "ตรง" else
+            "ชื่อเว็บไซต์ไม่ตรงกับข้อมูลในใบรับรองความปลอดภัย"
+        )
+
+    if feat_key == "uses_https":
+        return (
+            "เว็บไซต์นี้ใช้การเชื่อมต่อแบบปลอดภัย"
+            if neg else
+            "เว็บไซต์นี้ไม่ได้ใช้การเชื่อมต่อแบบปลอดภัย"
+        )
+
+    if feat_key == "is_http":
+        return (
+            "ไม่พบการเชื่อมต่อแบบไม่ปลอดภัย"
+            if neg else
+            "เว็บไซต์นี้ใช้การเชื่อมต่อแบบไม่ปลอดภัย"
+        )
+
+    if feat_key == "domain_age_lt_90d":
+        return (
+            "เว็บไซต์นี้ไม่ได้เพิ่งถูกสร้าง"
+            if neg else
+            "เว็บไซต์นี้เพิ่งถูกสร้างไม่นาน จึงควรระวัง"
+        )
+
+    if feat_key == "ip":
+        return (
+            "ลิงก์นี้ใช้ชื่อเว็บไซต์ตามปกติ"
+            if neg else
+            "ลิงก์นี้ใช้ตัวเลขแทนชื่อเว็บไซต์ ซึ่งควรระวัง"
+        )
+
+    if feat_key == "punycode":
+        return (
+            "ไม่พบรูปแบบชื่อเว็บไซต์ที่ผิดปกติ"
+            if neg else
+            "ชื่อเว็บไซต์มีรูปแบบผิดปกติที่อาจทำให้สับสน"
+        )
+
+    if feat_key == "shortening_service":
+        return (
+            "ลิงก์นี้ไม่ใช่ลิงก์ย่อ"
+            if neg else
+            "ลิงก์นี้เป็นลิงก์ย่อ ทำให้ดูปลายทางจริงได้ยาก"
+        )
+
+    if feat_key == "phish_hints":
+        return (
+            "ไม่พบคำที่มักใช้ในเว็บหลอกลวง"
+            if neg else
+            "พบคำในลิงก์ที่มักใช้ในเว็บหลอกลวง"
+        )
+
+    if feat_key == "has_at_symbol":
+        return (
+            "ไม่พบสัญลักษณ์ผิดปกติในลิงก์"
+            if neg else
+            "ลิงก์นี้มีเครื่องหมาย @ ซึ่งอาจใช้ทำให้เข้าใจผิด"
+        )
+
+    if feat_key == "random_domain":
+        return (
+            "ชื่อเว็บไซต์ดูเป็นปกติ"
+            if neg else
+            "ชื่อเว็บไซต์ดูแปลกหรือไม่น่าเชื่อถือ"
+        )
+
+    if feat_key == "num_query_params":
+        return (
+            "ลิงก์มีข้อมูลต่อท้ายในระดับปกติ"
+            if neg else
+            "ลิงก์มีข้อมูลต่อท้ายจำนวนมากผิดปกติ"
+        )
+
+    if feat_key == "redirect_chain_len":
+        return (
+            "มีการเปลี่ยนเส้นทาง แต่ไม่พบว่าผิดปกติ"
+            if neg else
+            f"ลิงก์นี้มีการเปลี่ยนเส้นทาง {value_str} ครั้ง"
+        )
+
+    if feat_key == "final_domain_differs":
+        return (
+            "ปลายทางยังอยู่ในเว็บไซต์เดิม"
+            if neg else
+            "ลิงก์นี้พาไปยังอีกเว็บไซต์หนึ่ง"
+        )
+
+    if feat_key == "redirect_and_domain_diff":
+        return (
+            "มีการเปลี่ยนเส้นทาง แต่ไม่พบว่าผิดปกติ"
+            if neg else
+            "ลิงก์นี้มีการเปลี่ยนเส้นทางไปยังอีกเว็บไซต์หนึ่ง"
+        )
+
     if feat_key in REDIRECT_FEATS:
-        return "ไม่พบการเปลี่ยนเส้นทางน่าสงสัย" if neg else "มีการเปลี่ยนเส้นทางหลายครั้ง/ไปยังโดเมนอื่น"
+        return (
+            "มีการเปลี่ยนเส้นทาง แต่ไม่พบว่าผิดปกติ"
+            if neg else
+            "พบการเปลี่ยนเส้นทางที่อาจน่าสงสัย"
+        )
+
     return f"{label}: {value_str}"
 
 def _coalesce_reasons(reasons):
@@ -242,13 +384,14 @@ def _coalesce_reasons(reasons):
         if r["feature"] in REDIRECT_FEATS:
             direction_key = "neg" if r["contribution"] < 0 else "pos"
             key = f"redirect_group_{direction_key}"
-            r2["label"] = "พฤติกรรมการเปลี่ยนเส้นทาง"
+            r2["label"] = "การเปลี่ยนเส้นทาง"
+
             if r["contribution"] < 0:
-                r2["explanation"] = "ไม่พบการเปลี่ยนเส้นทางผิดปกติ"
+                r2["explanation"] = "มีการเปลี่ยนเส้นทาง แต่ไม่พบว่าผิดปกติ"
                 r2["value"] = "ปกติ"
             else:
-                r2["explanation"] = "พบการเปลี่ยนเส้นทางที่อาจผิดปกติ (หลายครั้งหรือไปต่างโดเมน)"
-                r2["value"] = "ผิดปกติ"
+                r2["explanation"] = "พบการเปลี่ยนเส้นทางที่อาจน่าสงสัย"
+                r2["value"] = "ควรระวัง"
         prev = grouped.get(key)
         if (prev is None) or (abs(r2["contribution"]) > abs(prev["contribution"])):  # pick the stronger one
             grouped[key] = r2
