@@ -1,3 +1,8 @@
+try {
+  importScripts("vendor/ort.min.js");
+} catch (e) {
+  console.error("Failed to load vendor/ort.min.js", e);
+}
 // background.js — allowlist CSV + DNR block (domain/URL) + auto model check + interstitial + history
 // + notifications + offscreen handshake + SAFE BACK TARGET + SMART BACK + welcome on install
 // + USER ALLOWLIST (add/remove via popup)
@@ -7,10 +12,9 @@
 // + BYPASS-FIX: ยังตรวจ/บันทึกระหว่าง bypass แต่ไม่เด้งหน้าเตือน
 
 /***** CONFIG *****/
-
 // ===== FIRESTORE (feedback) =====
 const FIRESTORE_FEEDBACK_URL =
-  "https://firestore.googleapis.com/v1/projects/phishing-c9e6b/databases/(default)/documents/GoogleExtension_Feedback";
+  "https://firestore.googleapis.com/v1/projects/phishing-c9e6b/databases/(default)/documents/FirefoxExtension_Feedback";
 
 const HISTORY_KEY = "check_history";
 const HISTORY_LIMIT = 300;
@@ -27,8 +31,16 @@ const MIN_RECHECK_MS = 5 * 60 * 1000;
 const VALID_SCHEMES = new Set(["http:", "https:"]);
 const BYPASS_MINUTES_DEFAULT = 5;
 
+
+let session = null;
+let featureOrder = null;
+let initialized = false;
+
 const lastCheckedAt = new Map();       // url -> ms (throttle per-URL)
-let offscreenReadyWaiter = null;
+
+const MODEL_PATH = "model/extension.onnx";
+const FEATURE_ORDER_PATH = "model/extension_feature_order.json";
+const UNSAFE_THRESHOLD = 0.515;
 
 /***** ENABLE / DISABLE (master switch) *****/
 const ENABLED_KEY = "ext_enabled";
@@ -51,6 +63,296 @@ function updateIcon(enabled) {
         "128": "icon/icon-turnoff128.png"
       }
     });
+  }
+}
+
+async function fetchArrayBufferRelative(path) {
+  const url = chrome.runtime.getURL(path);
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch ${path} (${resp.status})`);
+  return await resp.arrayBuffer();
+}
+
+async function fetchJsonRelative(path) {
+  const url = chrome.runtime.getURL(path);
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch JSON ${path} (${resp.status})`);
+  return await resp.json();
+}
+
+function extractFeaturesFromUrl(url) {
+  try {
+    const u = new URL(url);
+    const hostname = u.hostname;
+
+    const length_url = url.length;
+    const length_hostname = hostname.length;
+    const ratio_digits_url = (url.match(/\d/g) || []).length / Math.max(1, url.length);
+    const ratio_digits_host = (hostname.match(/\d/g) || []).length / Math.max(1, hostname.length);
+    const nb_subdomains = Math.max(0, hostname.split(".").length - 2);
+    const prefix_suffix = /-|_/.test(hostname) ? 1 : 0;
+    const uses_https = u.protocol === "https:" ? 1 : 0;
+    const is_http = u.protocol === "http:" ? 1 : 0;
+    const num_query_params = u.searchParams ? [...u.searchParams].length : 0;
+    const has_at_symbol = url.includes("@") ? 1 : 0;
+
+    let url_entropy = 0;
+    const map = {};
+    for (const ch of url) map[ch] = (map[ch] || 0) + 1;
+    for (const k in map) {
+      const p = map[k] / url.length;
+      url_entropy -= p * Math.log2(p);
+    }
+
+    const url_length_ratio = length_url / (length_hostname + 1);
+    const digit_ratio_diff = Math.abs(ratio_digits_url - ratio_digits_host);
+
+    return {
+      length_url,
+      length_hostname,
+      ratio_digits_url,
+      ratio_digits_host,
+      nb_subdomains,
+      tld_in_path: 0,
+      tld_in_subdomain: 0,
+      shortening_service: 0,
+      prefix_suffix,
+      url_entropy,
+      uses_https,
+      is_http,
+      num_query_params,
+      has_at_symbol,
+      path_extension: 0,
+      tld_risk: 0,
+      typosquat_candidate: 0,
+      typosquat_score_max: 0,
+      typosquat_score_mean: 0,
+      typosquat_distance: 0,
+      url_length_ratio,
+      digit_ratio_diff
+    };
+  } catch {
+    return null;
+  }
+}
+
+function buildInputTensor(featuresObj) {
+  if (!featureOrder) throw new Error("featureOrder not loaded");
+  const arr = new Float32Array(featureOrder.length);
+  for (let i = 0; i < featureOrder.length; i++) {
+    arr[i] = Number(featuresObj[featureOrder[i]] ?? 0);
+  }
+  return new ort.Tensor("float32", arr, [1, featureOrder.length]);
+}
+
+function readNumberFromTensor(t) {
+  try {
+    const arr = t?.data;
+    if (!arr || arr.length === 0) return null;
+    if (arr.length === 2) return typeof arr[1] === "number" ? arr[1] : null;
+    if (arr.length === 1) {
+      const v = arr[0];
+      if (typeof v !== "number") return null;
+      if (v < 0 || v > 1) return 1 / (1 + Math.exp(-v));
+      return v;
+    }
+    const last = arr[arr.length - 1];
+    return typeof last === "number" ? last : null;
+  } catch {
+    return null;
+  }
+}
+
+function readNumberFromMap(m) {
+  try {
+    const kt = m?.keys, vt = m?.values;
+    if (!kt?.data || !vt?.data) return null;
+    const keys = kt.data, vals = vt.data;
+    let idx = -1;
+    for (let i = 0; i < keys.length; i++) {
+      const k = String(keys[i]).toLowerCase();
+      if (k === "1" || k.includes("unsafe") || k.includes("phishing")) {
+        idx = i;
+        break;
+      }
+    }
+    if (idx >= 0 && typeof vals[idx] === "number") return vals[idx];
+    let max = -Infinity;
+    for (let i = 0; i < vals.length; i++) {
+      if (vals[i] > max) max = vals[i];
+    }
+    return isFinite(max) ? max : null;
+  } catch {
+    return null;
+  }
+}
+
+function readNumberFromValue(v) {
+  if (v && typeof v === "object" && "data" in v) return readNumberFromTensor(v);
+  if (v && typeof v === "object" && v.keys && v.values) return readNumberFromMap(v);
+  if (Array.isArray(v)) {
+    for (const it of v) {
+      const n = readNumberFromValue(it);
+      if (n != null) return n;
+    }
+  }
+  return null;
+}
+
+function pickUnsafeProbabilityFromResults(results, outputNames) {
+  const preferred = [
+    "probabilities",
+    "probability",
+    "proba",
+    "scores",
+    "logits",
+    "output_probability",
+    "output_prob"
+  ];
+
+  for (const name of preferred) {
+    if (Object.prototype.hasOwnProperty.call(results, name)) {
+      const num = readNumberFromValue(results[name]);
+      if (num != null) return num;
+    }
+  }
+
+  for (const name of (outputNames || [])) {
+    if (!Object.prototype.hasOwnProperty.call(results, name)) continue;
+    const num = readNumberFromValue(results[name]);
+    if (num != null) return num;
+  }
+
+  for (const [, v] of Object.entries(results)) {
+    const num = readNumberFromValue(v);
+    if (num != null) return num;
+  }
+
+  return 0;
+}
+
+async function createSessionWasmWithFallback(modelBin) {
+  ort.env.wasm.wasmPaths = chrome.runtime.getURL("vendor/");
+  try {
+    ort.env.wasm.numThreads = 1;
+    ort.env.wasm.simd = true;
+    const s1 = await ort.InferenceSession.create(modelBin, {
+      executionProviders: ["wasm"],
+      graphOptimizationLevel: "all"
+    });
+    console.log("✅ ONNX session ready (WASM single-thread)");
+    return s1;
+  } catch (e1) {
+    console.warn("Single-thread failed → try threaded", e1);
+  }
+
+  try {
+    ort.env.wasm.numThreads = 2;
+    ort.env.wasm.simd = true;
+    const s2 = await ort.InferenceSession.create(modelBin, {
+      executionProviders: ["wasm"],
+      graphOptimizationLevel: "all"
+    });
+    console.log("✅ ONNX session ready (WASM threaded)");
+    return s2;
+  } catch (e2) {
+    console.warn("Threaded WASM failed", e2);
+    throw e2;
+  }
+}
+
+async function preloadModel() {
+  if (initialized) {
+    console.log("[FX] preloadModel already initialized");
+    return { status: "already" };
+  }
+
+  try {
+    console.log("[FX] preloadModel start");
+    console.log("[FX] ort =", globalThis.ort);
+
+    if (!globalThis.ort) {
+      throw new Error("ort not found");
+    }
+
+    const [modelBin, order] = await Promise.all([
+      fetchArrayBufferRelative(MODEL_PATH),
+      fetchJsonRelative(FEATURE_ORDER_PATH)
+    ]);
+
+    console.log("[FX] model loaded bytes =", modelBin.byteLength);
+    console.log("[FX] feature order length =", order?.length);
+
+    featureOrder = order;
+    session = await createSessionWasmWithFallback(modelBin);
+    initialized = true;
+
+    console.log("[FX] preloadModel success");
+    console.log("[FX] inputNames =", session?.inputNames);
+    console.log("[FX] outputNames =", session?.outputNames);
+
+    return { status: "ok" };
+  } catch (err) {
+    console.error("[FX] preloadModel failed =", err);
+    return { status: "error", error: String(err) };
+  }
+}
+
+async function runModelCheck(url) {
+  console.log("[FX] runModelCheck url =", url);
+  console.log("[FX] initialized =", initialized);
+
+  if (!initialized) {
+    const preload = await preloadModel();
+    console.log("[FX] preload result =", preload);
+
+    if (preload?.status === "error") {
+      return { prediction: 0, unsafe_probability: 0, reason: "model_load_failed" };
+    }
+  }
+
+  if (!session || !featureOrder) {
+    console.log("[FX] model not ready");
+    return { prediction: 0, unsafe_probability: 0, reason: "model_not_ready" };
+  }
+
+  const features = extractFeaturesFromUrl(url);
+  console.log("[FX] features =", features);
+
+  if (!features) {
+    return { prediction: 0, unsafe_probability: 0, reason: "feature_extract_failed" };
+  }
+
+  try {
+    const inputTensor = buildInputTensor(features);
+    console.log("[FX] inputTensor =", Array.from(inputTensor.data));
+
+    const feeds = { [session.inputNames[0]]: inputTensor };
+    const results = await session.run(feeds);
+    console.log("[FX] raw results =", results);
+
+    let unsafe_prob = null;
+    const firstName = session.outputNames?.[0];
+    const firstOut = firstName ? results[firstName] : null;
+
+    if (firstOut && firstOut.data) {
+      unsafe_prob = readNumberFromTensor(firstOut);
+    }
+
+    if (unsafe_prob == null) {
+      unsafe_prob = pickUnsafeProbabilityFromResults(results, session.outputNames);
+    }
+
+    if (!isFinite(unsafe_prob)) unsafe_prob = 0;
+    unsafe_prob = Math.max(0, Math.min(1, unsafe_prob));
+
+    const prediction = unsafe_prob >= UNSAFE_THRESHOLD ? 1 : 0;
+    console.log("[FX] unsafe_prob =", unsafe_prob, "prediction =", prediction);
+
+    return { prediction, unsafe_probability: unsafe_prob };
+  } catch (err) {
+    console.error("[FX] inference error =", err);
+    return { prediction: 0, unsafe_probability: 0, reason: "inference_error" };
   }
 }
 
@@ -150,42 +452,6 @@ async function saveUserAllowlist(set) {
 function isAllowedByAny(hostname) {
   const base = normalizeDomainToETLD1(hostname);
   return (ALLOWLIST_SET && ALLOWLIST_SET.has(base)) || (USER_ALLOWLIST_SET && USER_ALLOWLIST_SET.has(base));
-}
-
-/***** OFFSCREEN HANDSHAKE (ONNX) *****/
-function waitForOffscreenReady(timeoutMs = 7000) {
-  if (offscreenReadyWaiter) return offscreenReadyWaiter;
-  offscreenReadyWaiter = new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      chrome.runtime.onMessage.removeListener(handler);
-      offscreenReadyWaiter = null;
-      reject(new Error("offscreenReady timeout"));
-    }, timeoutMs);
-    function handler(msg) {
-      if (msg?.action === "offscreenReady") {
-        clearTimeout(timer);
-        chrome.runtime.onMessage.removeListener(handler);
-        offscreenReadyWaiter = null;
-        resolve(true);
-      }
-    }
-    chrome.runtime.onMessage.addListener(handler);
-  });
-  return offscreenReadyWaiter;
-}
-async function ensureOffscreen() {
-  try {
-    if (await chrome.offscreen.hasDocument()) {
-      const res = await chrome.runtime.sendMessage({ action: "ping" }).catch(() => null);
-      if (res?.ok) return;
-    }
-  } catch {}
-  await chrome.offscreen.createDocument({
-    url: chrome.runtime.getURL("offscreen.html"),
-    reasons: [chrome.offscreen.Reason.BLOBS],
-    justification: "Run ONNX (WASM) for URL safety scoring"
-  });
-  await waitForOffscreenReady().catch(() => {});
 }
 
 /***** STORAGE: history + blocklists + feedback *****/
@@ -347,24 +613,16 @@ function ruleForBlockedUrl(id, fullUrl) {
   };
 }
 function ruleForBlockedDomain(id, domain) {
-  const ext = new URL(chrome.runtime.getURL("/"));
   return {
     id,
     priority: 1,
     action: {
       type: "redirect",
       redirect: {
-        transform: {
-          scheme: "chrome-extension",
-          host: ext.host,
-          path: "/warning.html",
-          queryTransform: {
-            addOrReplaceParams: [
-              { key: "why", value: "blocked:domain" },
-              { key: "domain", value: domain }
-            ]
-          }
-        }
+        regexSubstitution:
+          chrome.runtime.getURL("warning.html") +
+          "?domain=" + encodeURIComponent(domain) +
+          "&why=blocked:domain"
       }
     },
     condition: {
@@ -396,6 +654,8 @@ async function rebuildDnrRules() {
 
 /***** MODEL CHECK + INTERSTITIAL (เฉพาะไม่โดน DNR กันไว้) *****/
 async function checkUrlSafety(url) {
+  console.log("[FX] checkUrlSafety url =", url);
+
   const host = safeDomain(url);
   try { await loadAllowlistFromCsv(); } catch {}
   await loadUserAllowlist().catch(()=>{});
@@ -404,18 +664,21 @@ async function checkUrlSafety(url) {
     const reason = (USER_ALLOWLIST_SET && USER_ALLOWLIST_SET.has(normalizeDomainToETLD1(host)))
       ? "allowlist-hard:user"
       : "allowlist-hard:csv";
+    console.log("[FX] allowlist matched =", reason);
     return { prediction: 0, unsafe_probability: 0.001, reason };
   }
+
   try {
-    await ensureOffscreen();
-    const res = await chrome.runtime.sendMessage({ action: "check_url", url });
-    if (!res) throw new Error("no response from offscreen");
-    return res; // { prediction, unsafe_probability, reason? }
+    const res = await runModelCheck(url);
+    console.log("[FX] model result =", res);
+    if (!res) throw new Error("no model response");
+    return res;
   } catch (e) {
-    console.warn("checkUrlSafety error:", e);
-    return { prediction: 0, unsafe_probability: 0 };
+    console.error("[FX] checkUrlSafety error =", e);
+    return { prediction: 0, unsafe_probability: 0, reason: "check_error" };
   }
 }
+
 
 /***** เก็บประวัติ URL ของแท็บ (main_frame) เพื่อ safeBackTarget *****/
 const tabHistoryMap = new Map(); // tabId -> string[]
@@ -728,7 +991,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.action === "notify_blocked") {
     chrome.notifications?.create({
       type: "basic",
-      iconUrl: "icons/icon128.png",
+      iconUrl: "icon/icon-turnon128.png",
       title: "เว็บไซต์ถูกบล็อค",
       message: `${msg.why || "blocked"}\n${msg.url || ""}`
     }, () => {});
@@ -807,9 +1070,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.action === "preload_model") {
     (async () => {
       try {
-        await ensureOffscreen();
-        const res = await chrome.runtime.sendMessage({ action: "preload_model" });
-        sendResponse(res);
+        await preloadModel();
+        sendResponse({ status: "ok" });
       } catch (e) {
         sendResponse({ status: "error", error: String(e) });
       }
@@ -935,7 +1197,7 @@ if (msg?.action === "feedback_send_firestore") {
         user_claim: msg.user_claim || "",
         flags: Array.isArray(msg.flags) ? msg.flags.slice(0, 50) : [],
         note: String(msg.note || "").slice(0, 2000),
-        source: "chrome_extension"
+        source: "firefox_extension"
       });
 
       const res = await fetch(FIRESTORE_FEEDBACK_URL, {
@@ -974,7 +1236,7 @@ if (msg?.action === "feedback_add_and_send") {
       // ส่ง Firestore
       const doc = toFirestoreDoc({
         ...entry,
-        source: "chrome_extension"
+        source: "firefox_extension"
       });
 
       const res = await fetch(FIRESTORE_FEEDBACK_URL, {
@@ -996,7 +1258,6 @@ if (msg?.action === "feedback_add_and_send") {
 /***** WELCOME / ONBOARDING + SYNC DEFAULT *****/
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
-    // 🔐 ค่า default ที่ sync ติด Google account
     await chrome.storage.sync.set({
       [ENABLED_KEY]: true,
       [ALLOWLIST_USER_KEY]: []
@@ -1007,20 +1268,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     });
 
   } else if (details.reason === "update") {
-    try {
-      const self = await chrome.management.getSelf?.();
-      if (self?.installType === "development") {
-        const KEY = "dev_welcome_last";
-        const { [KEY]: last } = await chrome.storage.session.get(KEY);
-        const today = new Date().toDateString();
-        if (last !== today) {
-          await chrome.storage.session.set({ [KEY]: today });
-          chrome.tabs.create({
-            url: chrome.runtime.getURL("welcome.html?from=dev")
-          });
-        }
-      }
-    } catch {}
+    // temporarily disabled during Firefox port
   }
 });
 

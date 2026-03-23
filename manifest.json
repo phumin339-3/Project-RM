@@ -6,7 +6,6 @@
   "permissions": [
     "storage",
     "activeTab",
-    "offscreen",
     "tabs",
     "webNavigation",
     "declarativeNetRequest",
@@ -15,12 +14,12 @@
   ],
 
   "host_permissions": [
-  "http://*/*",
-  "https://*/*"
+    "http://*/*",
+    "https://*/*"
   ],
 
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["vendor/ort.min.js", "background.js"]
   },
 
   "action": {
@@ -31,22 +30,23 @@
       "128": "icon/icon-turnon128.png"
     }
   },
-  
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "phishing-detector@example.com",
+      "strict_min_version": "127.0"
+    }
+  },
+
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
-
-  "declarative_net_request": {
-    "rule_resources": []
-  },
-
+  
   "web_accessible_resources": [
     {
       "resources": [
         "vendor/*",
         "model/*",
-        "offscreen.html",
-        "offscreen.js",
         "data/*.csv",
         "warning.html",
         "warning.js"
